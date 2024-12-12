@@ -95,7 +95,7 @@ PORTAL_AUGMENT_LOC: Vec2 = Vec2(500, 350)
 PORTAL_AUGMENT_POS: Vec4 = Vec4(GameWindow(660, 285, 845, 340))
 
 # 回合时间
-REMAINING_TIME_POS: Vec4 = Vec4(GameWindow(1124, 4, 1162, 62))
+REMAINING_TIME_POS: Vec4 = Vec4(GameWindow(1074, 4, 1112, 62))
 
 # 新赛季异常突变BUFF购买位置
 ABNORMAL_POS: Vec4 = Vec4(GameWindow(624, 934, 805, 960))
@@ -103,11 +103,10 @@ ABNORMAL_LOC: Vec2 = Vec2(1331, 948)
 
 # 面板名称loc
 PANEL_NAME_LOC: Vec4 = Vec4(GameWindow(1707, 320, 1821, 342))
-
 # 钱包位置
-GOLD_POS: Vec4 = Vec4(GameWindow(870, 883, 920, 909))
+GOLD_POS: Vec4 = Vec4(GameWindow(960, 883, 1010, 909))
 # 4-6的时候钱包位置
-GOLD_ABNORMAL_POS: Vec4 = Vec4(GameWindow(1317, 883, 1367, 907))
+GOLD_ABNORMAL_POS: Vec4 = Vec4(GameWindow(1407, 883, 1457, 907))
 
 # 判断是否是铁砧
 ANVIL_MSG_POS: Vec4 = Vec4(GameWindow(818, 838, 932, 859))

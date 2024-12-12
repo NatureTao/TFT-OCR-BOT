@@ -2,6 +2,7 @@
 Arena类用于获取游戏数据的函数
 """
 import time
+import os
 from difflib import SequenceMatcher
 import threading
 from PIL import ImageGrab
@@ -12,6 +13,38 @@ import ocr
 import game_assets
 import mk_functions
 from vec4 import Vec4
+
+def save_debug_screenshot(name: str, coords: Vec4) -> None:
+    """保存带红框标记的调试截图"""
+    # 截取更大范围的图片,包含周围区域
+    larger_bbox = (
+        coords.get_coords()[0] - 50,
+        coords.get_coords()[1] - 50, 
+        coords.get_coords()[2] + 50,
+        coords.get_coords()[3] + 50
+    )
+    screen_capture = ImageGrab.grab(bbox=larger_bbox)
+    
+    # 在大图上绘制红框标记识别区域
+    from PIL import ImageDraw
+    draw = ImageDraw.Draw(screen_capture)
+    draw.rectangle(
+        (
+            50, 50,
+            coords.get_coords()[2] - coords.get_coords()[0] + 50,
+            coords.get_coords()[3] - coords.get_coords()[1] + 50
+        ),
+        outline="red",
+        width=2
+    )
+    
+    text = ocr.get_text(screenxy=coords.get_coords(), scale=3)
+    print(f"{name}识别失败,识别内容为: {text}")
+    print(f"截图位置: {coords.get_coords()}")
+    
+    # 保存带红框标记的截图到debug目录
+    os.makedirs("debug", exist_ok=True)
+    screen_capture.save(f"debug/{name}_{int(time.time())}.png")
 
 
 def get_level() -> int:
@@ -83,17 +116,27 @@ def get_little_hero_health(screen_capture: ImageGrab.Image, pos: Vec4, index: in
         if little_hero.isnumeric() and 3 >= len(little_hero) == len(str(int(little_hero))) and int(little_hero) <= 100:
             HP.append((index + 1, int(little_hero)))
     except ValueError:
+        save_debug_screenshot("little_hero_health", pos)
         pass
 
 
 def get_round_remaining_time() -> int:
     """返回回合剩于时间"""
     try:
-        second = int(ocr.get_text(screenxy=screen_coords.REMAINING_TIME_POS.get_coords(), scale=3))
+        # 获取当前回合
+        round_text = ocr.get_text(screenxy=screen_coords.ROUND_POS.get_coords(), scale=3)
+        # 如果是2-x及以后的回合,识别区域向右移动50像素
+        if round_text.startswith("2-") or round_text.startswith("3-") or round_text.startswith("4-") or round_text.startswith("5-") or round_text.startswith("6-") or round_text.startswith("7-"):
+            coords = list(screen_coords.REMAINING_TIME_POS.get_coords())
+            coords[0] += 50
+            coords[2] += 50
+            second = int(ocr.get_text(screenxy=tuple(coords), scale=3))
+        else:
+            second = int(ocr.get_text(screenxy=screen_coords.REMAINING_TIME_POS.get_coords(), scale=3))
         return second
     except ValueError:
+        save_debug_screenshot("round_time", screen_coords.REMAINING_TIME_POS)
         return -1
-
 
 
 def get_gold() -> int:
@@ -105,6 +148,7 @@ def get_gold() -> int:
     try:
         return int(gold)
     except ValueError:
+        save_debug_screenshot("gold", screen_coords.GOLD_POS)
         return 0
 
 
@@ -117,6 +161,7 @@ def get_abnormal_gold() -> int:
     try:
         return int(gold)
     except ValueError:
+        save_debug_screenshot("abnormal_gold", screen_coords.GOLD_ABNORMAL_POS)
         return 0
 
 
