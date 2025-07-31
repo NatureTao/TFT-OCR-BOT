@@ -154,15 +154,23 @@ EXIT_NOW_POS: Vec4 = Vec4(GameWindow(910, 560, 1029, 583))
 
 # 强化符文名称位置
 AUGMENT_POS: list[Vec4] = [
-
     Vec4(GameWindow(420, 532, 687, 570)),
     Vec4(GameWindow(825, 532, 1095, 570)),
     Vec4(GameWindow(1233, 532, 1500, 570)),
 ]
 # 强化符文购买位置
-AUGMENT_LOC: list[Vec2] = [Vec2(549, 445), Vec2(955, 445), Vec2(1365, 445)]
+AUGMENT_LOC: list[Vec2] = [
+    Vec2(549, 445),
+    Vec2(955, 445),
+    Vec2(1365, 445),
+    ]
+
 # 强化符文刷新位置
-AUGMENT_ROLL: list[Vec2] = [Vec2(549, 875), Vec2(960, 875), Vec2(1363, 875)]
+AUGMENT_ROLL: list[Vec2] = [Vec2(549, 875),
+                            Vec2(960, 875),
+                            Vec2(1363, 875),
+                            Vec2(1218, 860)
+                            ]
 
 # 胜利POS
 VICTORY_POS: Vec4 = Vec4(GameWindow(906, 560, 1030, 587))

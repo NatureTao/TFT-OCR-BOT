@@ -5,7 +5,7 @@ Handles sending input to the game, coords contain a cartesian ordered pair (x, y
 
 import random
 import pydirectinput
-
+pydirectinput.FAILSAFE=False
 
 def left_click(coords: tuple) -> None:
     """Left clicks at argument ones coordinates"""

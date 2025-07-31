@@ -1,0 +1,22 @@
+{
+  "COMP": {
+    "嘉文四世": {
+      "board_position": 21,
+      "items": [],
+      "level": 2,
+      "final_comp": true
+    },
+    "拉亚斯特": {
+      "board_position": 22,
+      "items": ["窃贼手套"],
+      "level": 2,
+      "final_comp": true
+    }
+  },
+  "AUGMENTS": [
+    "星夜",
+    "商店故障",
+    "超速进击",
+    "反义外壳"
+  ]
+}

@@ -2,22 +2,25 @@
 包含所有与截图转换为字符串相关的代码
 """
 
+""" START 运行时动态替换EasyOCR警告问题"""
+import torch.utils.data
+# 保存原始 DataLoader
+original_dataloader = torch.utils.data.DataLoader
+
+# 定义新的 DataLoader 临时解决等待官方更新
+def patched_dataloader(*args, **kwargs):
+    kwargs['pin_memory'] = settings.USE_GPU  # 强制覆盖 pin_memory
+    return original_dataloader(*args, **kwargs)
+# 替换 DataLoader
+torch.utils.data.DataLoader = patched_dataloader
+""" END 运行时动态替换EasyOCR警告问题"""
+
 from typing import Any
 import cv2
 import numpy as np
 from PIL import ImageGrab
 import easyocr
 import settings
-
-"""初始化全局飞浆OCR"""
-# ocr = PaddleOCR(lang="ch",  # 默认中文
-#                             show_log=False,
-#                             use_gpu=settings.USE_GPU,
-#                             use_space_char=False,
-#                             use_angle_cls=True,
-#                             use_mp=settings.USE_MP,
-#                             total_process_num=settings.TOTAL_PROCESS_NUM,
-#                             det_db_score_mode=settings.DET_DB_SCORE_MODE)
 
 """初始化全局EasyOCR"""
 reader = easyocr.Reader(['ch_sim'], gpu=settings.USE_GPU, verbose=False)

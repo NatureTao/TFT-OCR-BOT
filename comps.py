@@ -6,71 +6,53 @@ Items will be placed on the top champion first, and prioritize building items on
 """
 
 COMP = {
-    "\u6ce2\u6bd4": {
+    "\u5609\u6587\u56db\u4e16": {
         "board_position": 21,
         "items": [],
-        "level": 3,
+        "level": 2,
         "final_comp": True
     },
-    "\u96f7\u514b\u987f": {
+    "\u62c9\u4e9a\u65af\u7279": {
         "board_position": 22,
-        "items": ["\u996e\u8840\u5251", "\u65af\u7279\u62c9\u514b\u7684\u6311\u6218\u62a4\u624b", "\u6cf0\u5766\u7684\u575a\u51b3"],
+        "items": ["\u7a83\u8d3c\u624b\u5957"],
+        "level": 2,
+        "final_comp": True
+    },
+    "\u851a": {
+        "board_position": 23,
+        "items": [],
         "level": 3,
         "final_comp": True
     },
-    "\u52a0\u91cc\u5965": {
+    "\u65af\u5361\u7eb3": {
         "board_position": 24,
-        "items": [],
-        "level": 2,
+        "items": ["\u72c2\u5f92\u94e0\u7532", "\u77f3\u50cf\u9b3c\u77f3\u677f\u7532", "\u65e5\u708e\u6597\u7bf7"],
+        "level": 3,
         "final_comp": True
     },
-    "\u745f\u5e84\u59ae": {
+    "\u585e\u62c9\u65af": {
         "board_position": 25,
-        "items": ["\u65e5\u708e\u6597\u7bf7", "\u5723\u76fe\u4f7f\u7684\u8a93\u7ea6", "\u6551\u8d4e"],
+        "items": [],
         "level": 2,
         "final_comp": True
     },
-    "\u76d6\u4f26": {
+    "\u857e\u6b27\u5a1c": {
         "board_position": 26,
-        "items": [],
+        "items": ["\u7a83\u8d3c\u624b\u5957"],
         "level": 2,
         "final_comp": True
     },
-    "\u8d3e\u514b\u65af": {
-        "board_position": 27,
-        "items": [],
+    "\u514b\u683c\u83ab": {
+        "board_position": 0,
+        "items": ["\u9b3c\u7d22\u7684\u72c2\u66b4\u4e4b\u5203", "\u6d77\u5996\u4e4b\u6012", "\u6d77\u5996\u4e4b\u6012"],
         "level": 3,
-        "final_comp": True
-    },
-    "\u4fc4\u6d1b\u4f0a": {
-        "board_position": 15,
-        "items": [],
-        "level": 3,
-        "final_comp": True
-    },
-    "\u6cfd\u4e3d": {
-        "board_position": 5,
-        "items": ["\u9b3c\u7d22\u7684\u72c2\u66b4\u4e4b\u5203", "\u6d77\u514b\u65af\u79d1\u6280\u67aa\u5203"],
-        "level": 3,
-        "final_comp": True
-    },
-    "\u5fb7\u83b1\u6587": {
-        "board_position": 6,
-        "items": ["\u6700\u540e\u7684\u8f7b\u8bed", "\u65e0\u5c3d\u4e4b\u5203"],
-        "level": 2,
         "final_comp": True
     },
     "\u5343\u73cf": {
-        "board_position": 0,
-        "items": [],
-        "level": 2,
-        "final_comp": False
-    },
-    "\u514b\u683c\u83ab": {
         "board_position": 1,
-        "items": [],
+        "items": ["\u65e0\u5c3d\u4e4b\u5203", "\u6700\u540e\u7684\u8f7b\u8bed", "\u5f3a\u88ad\u8005\u7684\u94fe\u67b7"],
         "level": 2,
-        "final_comp": False
+        "final_comp": True
     }
 }
 
@@ -88,14 +70,11 @@ COMP = {
 
 # 强化白名单
 AUGMENTS: list[str] = [
-    "堡垒卫士之徽"
-    "晶体管"
-    "灵魂连接"
-    "巨大伙伴"
-    "四费增援"
-    "拾荒者"
-    "投资策略"
-    "健康就是财富"
+    "星夜",
+    "商店故障",
+    "超速进击",
+    "反义外壳",
+
 
 ]
 

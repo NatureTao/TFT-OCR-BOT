@@ -12,7 +12,6 @@ import game_assets
 import mk_functions
 from vec4 import Vec4
 import threading
-from queue import Queue
 
 
 def get_level() -> int:
@@ -41,7 +40,7 @@ def get_level() -> int:
 #     except (requests.exceptions.ConnectionError, KeyError):
 #         return -1
 
-def get_alive() -> int:
+def get_alive() -> int|None:
     """返回召唤师是否存活"""
     try:
         response = requests.get(
@@ -148,7 +147,7 @@ def valid_champ(champ: str) -> str:
 
 def get_champ(
         screen_capture: ImageGrab.Image, name_pos: Vec4, shop_pos: int, shop_array: list
-) -> str:
+) -> str|None:
     """返回包含商店位置和冠军名称的元组"""
     champ: str = screen_capture.crop(name_pos.get_coords())
     champ: str = ocr.get_text_from_image(image=champ)
@@ -214,6 +213,7 @@ def valid_item(item: str) -> str | None:
 def get_items() -> list:
     """返回当前棋盘上装备的列表"""
     item_bench: list = []
+    counter = 0 # 读取错误装备计数器
     for positions in screen_coords.ITEM_POS:
         mk_functions.move_mouse(positions[0].get_coords())
         item: str = ocr.get_text(
@@ -221,9 +221,11 @@ def get_items() -> list:
             scale=1
         )
         valid = valid_item(item)
-        item_bench.append(valid)
         if valid is None:
-            break
+            valid = '未知'
+            counter+=1
+            if counter > 3 :
+                break
+        item_bench.append(valid)
     mk_functions.move_mouse(screen_coords.DEFAULT_LOC.get_coords())
     return item_bench
-

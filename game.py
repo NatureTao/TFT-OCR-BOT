@@ -32,7 +32,7 @@ class Game:
         self.forfeit_time: int = settings.FORFEIT_TIME + random.randint(50, 150)
         self.found_window = False
 
-        print("\n[!] 寻找游戏窗口")
+        print("寻找游戏窗口")
         while not self.found_window:
             print("  正在寻找游戏窗口...")
             win32gui.EnumWindows(self.callback, None)
@@ -139,13 +139,13 @@ class Game:
                     self.second_round()
                     ran_round: str = self.round[0]
                 elif self.round[0] in game_assets.ENCOUNTER_ROUNDS:
-                    print(f"\n[遇到对局] {self.round[0]}")
+                    print(f"[遇到对局] {self.round[0]}")
                     print("  不执行操作")
                     self.message_queue.put("CLEAR")
                     # self.arena.check_health()
                     ran_round: str = self.round[0]
                 if self.round[1] == 1 and self.round[0].split("-")[1] == "1":
-                    print("\n[当前回合]")
+                    print("[当前回合]")
                     self.encounter_round_setup()
             sleep(0.5)
 
@@ -209,7 +209,7 @@ class Game:
 
     def second_round(self) -> None:
         """Move unknown champion to board after first carousel"""
-        print(f"\n[初始对局] {self.round[0]}")
+        print(f"[初始对局] {self.round[0]}")
         self.message_queue.put("CLEAR")
         while True:
             result = arena_functions.bench_occupied_check()
@@ -224,7 +224,7 @@ class Game:
 
     def carousel_round(self) -> None:
         """Handles tasks for carousel rounds"""
-        print(f"\n[选秀] {self.round[0]}")
+        print(f"[选秀] {self.round[0]}")
         self.message_queue.put("CLEAR")
         if self.round[0] == "3-4":
             self.arena.final_comp = True
@@ -234,7 +234,7 @@ class Game:
 
     def pve_round(self) -> None:
         """Handles tasks for PVE rounds"""
-        print(f"\n[PvE 对局] {self.round[0]}")
+        print(f"[PvE 对局] {self.round[0]}")
         self.message_queue.put("CLEAR")
         sleep(0.5)
         if self.round[0] in game_assets.AUGMENT_ROUNDS:
@@ -257,6 +257,11 @@ class Game:
                         ].get_coords()
                     )
                     self.arena.board_unknown.append("魔像")
+        # 处理额外的强化符文
+        if self.round[0] == "2-6":
+            if self.arena.active_portal in game_assets.ADDITIONAL_AUGMENT:
+                print("选择额外强化符文")
+                self.arena.pick_augment()
 
         # if self.round[0] == "4-6":
         #     sleep(0.5)

@@ -57,6 +57,7 @@ class Arena:
             "基础装备锻造器": "清除锻造器在 回合 1-3",
             "魔像训练师": "移动魔像到空白位置在 回合 1-4",
             "黑客:幸运商店": "要做什么操作呢?",
+            "黑入:笫四个强化符文 ":'选择额外符文在 回合2-6'
         }
 
         augment_name = next((name for name in augment_flags if name in region), None)
@@ -590,14 +591,14 @@ class Arena:
                             refresh = False
                             show_store = True
 
-                    elif self.champs_to_buy[comps.get_key(comps.COMP, settings.TARGET_HERO_INDEX_SATISFY_GRADE)] == 0:
-                        mk_functions.buy_xp()
-                        print("  C位成型 -> 购买经验")
-
-                        mk_functions.reroll()
-                        print("  C位成型 -> 刷新商店")
-                        refresh = False
-                        show_store = True
+                    # elif self.champs_to_buy[comps.get_key(comps.COMP, settings.TARGET_HERO_INDEX_SATISFY_GRADE)] == 0:
+                    #     mk_functions.buy_xp()
+                    #     print("  C位成型 -> 购买经验")
+                    #
+                    #     mk_functions.reroll()
+                    #     print("  C位成型 -> 刷新商店")
+                    #     refresh = False
+                    #     show_store = True
 
                 if refresh and arena_functions.get_level() in settings.UPGRADE_LEVEL or level == 10 or self.spam_roll:
                     mk_functions.reroll()
@@ -682,22 +683,22 @@ class Arena:
                     screenxy=coords.get_coords(), scale=3
                 )
                 augments.append(augment)
-            print(f"  强化符文: {augments}")
+            print(f"强化符文: {augments}")
             if len(list(filter(None, augments))) == 3 and '' not in augments:
                 break
 
         for potential in comps.AUGMENTS:
             for augment in augments:
                 if potential in augment:
-                    print(f"  选择强化符文 {augment}")
+                    print(f"选择强化符文 {augment}")
                     mk_functions.left_click(
                         screen_coords.AUGMENT_LOC[augments.index(augment)].get_coords()
                     )
                     return
 
         if self.augment_roll:
-            print("  刷新强化符文")
-            for i in range(0, 3):
+            print("刷新强化符文")
+            for i in range(0, 4):
                 mk_functions.left_click(screen_coords.AUGMENT_ROLL[i].get_coords())
             self.augment_roll = False
             self.pick_augment()

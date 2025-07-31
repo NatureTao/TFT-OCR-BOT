@@ -109,7 +109,7 @@ def change_arena_skin(client_info: tuple) -> bool:
 
 def get_client() -> tuple:
     """获取英雄联盟客户端数据 如端口 令牌"""
-    print("\n\n[自动匹配对局]")
+    print(f"=====自动匹配对局=====")
     remoting_auth_token = ""
     server_url = ""
     re_app_port = re.compile(r'--app-port=([0-9]*)')  # 获取 app_port 的正则表达式
@@ -126,11 +126,14 @@ def get_client() -> tuple:
             server_url: str = f"https://127.0.0.1:{app_port}"
             got_lock_file = True
         else:
-            print("  英雄联盟客户端未打开!10秒后再检测一次。")
+            print("英雄联盟客户端未打开!10秒后再检测一次。")
             sleep(10)
-    print("  客户端已启动～(∠・ω< )⌒☆")
+    print("客户端已启动～(∠・ω< )⌒☆",flush=True)
 
     return remoting_auth_token, server_url
+
+
+
 
 
 def reconnect(client_info: tuple) -> None:
@@ -145,13 +148,14 @@ def reconnect(client_info: tuple) -> None:
 
 def queue() -> None:
     """进入对局的方法"""
+
     client_info: tuple = get_client()
     # 检测是否在游戏内
     while check_game_status(client_info) == "InProgress":
         sleep(2)
     # 检测是否需要重新连接
     if check_game_status(client_info) == "Reconnect":
-        print("  重新连接游戏")
+        print("重新连接游戏")
         reconnect(client_info)
         return
     # 上面条件都不是 创建一个房间
@@ -170,7 +174,11 @@ def queue() -> None:
             start_queue(client_info)
         if state == "ReadyCheck":
             accept_queue(client_info)
-            print("  等待其他玩家接受")
+            print("等待其他玩家接受")
         if state == "InProgress":
             return
         sleep(3)
+
+
+if __name__ == '__main__':
+    print(get_client())

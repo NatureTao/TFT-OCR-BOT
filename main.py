@@ -5,6 +5,7 @@
 import multiprocessing
 import os
 import time
+import traceback
 
 import settings
 from ui import UI
@@ -13,19 +14,19 @@ from game import Game
 
 
 def show_inform() -> None:
-    print("TFT OCR BOT | https://github.com/NatureTao/TFT-OCR-BOT")
-    print("关闭此窗口,以结束运行程序!")
-    print("加载配置文件 setting.py ")
-    print("S14:赛博之城")
+    print("TFT OCR BOT | https://github.com/NatureTao/TFT-OCR-BOT",flush=True)
+    print("关闭此窗口或点击结束程序按钮,以终止程序!",flush=True)
+    print("加载配置文件 setting.py ",flush=True)
+    print("S14:赛博之城",flush=True)
     if settings.AUTO_POWER_OFF:
-        print("[!]自动关机功能已开启!")
+        print("自动关机功能已开启!",flush=True)
     if settings.QUEUE_ID == 1100:
         game_mode = "排位模式"
     elif settings.QUEUE_ID == 1090:
         game_mode = "匹配模式"
     else:
-        game_mode = f"[注意]当前选择房间ID不是(匹配/排位)云顶模式|当前ID =>{settings.QUEUE_ID}"
-    print("当前挂机模式:", game_mode)
+        game_mode = f"警告:当前选择房间ID不是(匹配/排位)云顶模式|当前ID =>{settings.QUEUE_ID}"
+    print("当前挂机模式:", game_mode,flush=True)
 
 
 def game_loop(ui_queue: multiprocessing.Queue) -> None:
@@ -40,8 +41,11 @@ def game_loop(ui_queue: multiprocessing.Queue) -> None:
             Game(ui_queue)
             counter += 1
         except Exception as e:
-            print("[!]本地游戏服务器连接失败,正在重新连接!")
+            print("本地游戏服务器连接失败,正在重新连接!")
             print(e)
+            print("=== 错误详情 ===")
+            traceback.print_exc()  # 打印完整错误堆栈（含文件名和行号）
+            print("===============")
             time.sleep(1)
 
 
