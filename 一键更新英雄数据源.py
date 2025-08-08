@@ -6,6 +6,7 @@
 @Author  ：NatureTao
 @Date    ：2025/4/11 17:17 
 """
+from pathlib import Path
 
 import requests
 from fake_useragent import UserAgent
@@ -115,10 +116,33 @@ def updateChange(new_champions: Dict[str, Dict[str, Any]]):
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(new_content)
 
+def updateToJson(new_champions):
+    basePath = Path(__file__).parent / "config"
+    print(basePath)
+    if os.path.exists(basePath):
+        if os.path.isfile(existing_path := os.path.join(basePath, "resource.json")):
+            try:
+                with open(existing_path, "r", encoding="utf-8") as f:
+                    existingData = json.load(f)
+                    # 读取文件 替换数据
+                    existingData["CHAMPIONS"] = new_champions
+
+                with open(existing_path, "w", encoding="utf-8") as f:
+                    json.dump(existingData, f, ensure_ascii=False, indent=4)
+
+                print("更新完成")
+
+            except Exception as e:
+                print(e)
+        else:
+            print("未找到文件")
+    else:
+        print("未找到文件夹")
 
 if __name__ == '__main__':
     """删除原数据容器后在运行"""
     baseurl = "https://game.gtimg.cn/images/lol/act/img/tft/js/chess.js"  # 目标网页
     data_list = getData(baseurl)
-    updateChange(data_list)
-    print("更新完成!")
+    # updateChange(data_list)
+    updateToJson(data_list)
+

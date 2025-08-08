@@ -6,6 +6,7 @@
 @Author  ：NatureTao
 @Date    ：2025/4/11 17:17 
 """
+from pathlib import Path
 
 import requests
 from fake_useragent import UserAgent
@@ -64,6 +65,8 @@ def getData(url: str):
     BASIC_ITEM.add("装备拆卸器")
     BASIC_ITEM.add("重铸器")
     BASIC_ITEM.add("装备重铸器")
+    BASIC_ITEM.add("强化果实拆卸器")
+    BASIC_ITEM.add("强化果实")
 
     temp.append(BASIC_ITEM)
     temp.append(COMBINED_ITEMS)
@@ -159,10 +162,35 @@ def updateChange(data_list) -> None:
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(content)
 
+def updateToJson(data_list) -> None:
+
+    basePath = Path(__file__).parent / "config"
+    print(data_list)
+    if os.path.exists(basePath):
+        if os.path.isfile(existing_path := os.path.join(basePath,"resource.json")):
+            try:
+                with open(existing_path, "r", encoding="utf-8") as f:
+                    existingData = json.load(f)
+                    existingData["BASIC_ITEM"] = list(data_list[0])
+                    existingData["COMBINED_ITEMS"] = list(data_list[1])
+                    existingData["FULL_ITEMS"] = data_list[2]
+                    existingData["NON_CRAFTABLE_ITEMS"] = list(data_list[3])
+
+                with open(existing_path, "w", encoding="utf-8") as f:
+                    json.dump(existingData, f, ensure_ascii=False, indent=4)
+
+                print("更新完成")
+
+            except Exception as e:
+                print(e)
+        else:
+            print("未找到文件")
+    else:
+        print("未找到文件夹")
 
 if __name__ == '__main__':
     """可直接运行,会替换原数据"""
     baseurl = "https://game.gtimg.cn/images/lol/act/img/tft/js/equip.js"  # 目标网页
     data_list = getData(baseurl)
-    updateChange(data_list)
-    print("更新完成!")
+    # updateChange(data_list)
+    updateToJson(data_list)
