@@ -12,4 +12,4 @@ from arena_functions import get_items
 if __name__ == '__main__':
     items = arena_functions.get_items()
     print(items)
-    print(f"  装备: {list(filter((None).__ne__, items))}")
+    # print(f"  装备: {list(filter((None).__ne__, items))}")

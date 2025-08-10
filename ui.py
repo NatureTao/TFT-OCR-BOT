@@ -1,78 +1,90 @@
-"""User interface module that contains user interface class"""
-
-import tkinter as tk
 import multiprocessing
-from win32gui import SetWindowLong, GetWindowLong, SetLayeredWindowAttributes
-from win32con import WS_EX_LAYERED, WS_EX_TRANSPARENT, GWL_EXSTYLE
-import screeninfo
+from typing import Tuple
+
+from PySide6.QtCore import Qt, QTimer, QPoint
+from PySide6.QtGui import QColor, QFont
+from PySide6.QtWidgets import QApplication, QLabel, QWidget
+from screeninfo import get_monitors
 
 import settings
 
 
 class UI:
-    """用户界面类，用于在游戏过程中在屏幕上绘制标签"""
+    """用户界面类，使用 PySide6 在游戏屏幕上绘制标签（支持 RGBA 透明度）"""
 
     def __init__(self, message_queue: multiprocessing.Queue) -> None:
-        self.champ_text: str = UI.rgb_convert(settings.UI_COLOR)
-        self.transparent: str = UI.rgb_convert((0, 0, 0))
-        self.label_container: list = []
+        self.champ_color: QColor = self.rgb_convert(settings.UI_COLOR)
+        self.transparent: QColor = QColor(0, 0, 0, 0)  # 完全透明
+        self.label_container: list[QLabel] = []
         self.message_queue = message_queue
-        self.root = tk.Tk()
-        self.setup_window_size()
-        self.root.overrideredirect(True)
-        self.root.config(bg='#000000')
-        self.root.attributes("-alpha", 1)
-        self.root.wm_attributes("-topmost", 1)
-        self.root.attributes('-transparentcolor', '#000000', '-topmost', 1)
-        self.root.resizable(False, False)
-        self.set_clickthrough(self.root.winfo_id())
 
-    @classmethod
-    def rgb_convert(cls, rgb: tuple) -> str:
-        """Turns tuple rgb value into string for use by the UI"""
-        return "#%02x%02x%02x" % rgb # pylint: disable=consider-using-f-string
+        # 初始化 Qt 应用
+        self.app = QApplication.instance() or QApplication([])
+        self.root = QWidget()
+        self.setup_window()
+        self.root.show()
 
-    def setup_window_size(self) -> None:
-        """Setups window size"""
-        primary_monitor: None = next(
-            (
-                monitor
-                for monitor in screeninfo.get_monitors()
-                if monitor.is_primary
-            ),
-            None,
+    @staticmethod
+    def rgb_convert(rgba: Tuple[int, int, int, int]) -> QColor:
+        """ 颜色 """
+        r, g, b, a = rgba
+        # 确保值在 0-255 范围内（可选）
+        r = max(0, min(255, r))
+        g = max(0, min(255, g))
+        b = max(0, min(255, b))
+        a = max(0, min(255, a))
+        return QColor(r, g, b, a)
+
+    def setup_window(self) -> None:
+        """设置窗口属性（透明、置顶、无边框）"""
+        self.root.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint |
+            Qt.WindowType.WindowStaysOnTopHint |
+            Qt.WindowType.Tool
         )
-        if primary_monitor is None:
-            print("没有找到显示器 请使用 1920x1080 分辨率")
-            self.root.geometry("1920x1080")
-            return
-        self.root.geometry(f'{primary_monitor.width}x{primary_monitor.height}')
+        self.root.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.root.setStyleSheet("background: transparent;")
 
-    def set_clickthrough(self, hwnd: int) -> None:
-        """使用window API函数实现窗口点击"""
-        styles: int = GetWindowLong(hwnd, GWL_EXSTYLE)
-        styles: int = WS_EX_LAYERED | WS_EX_TRANSPARENT
-        SetWindowLong(hwnd, GWL_EXSTYLE, styles)
-        SetLayeredWindowAttributes(hwnd, 0, 255, 0x00000001)
+        # 设置窗口大小为全屏
+        primary_monitor = next(
+            (mon for mon in get_monitors() if mon.is_primary),
+            None
+        )
+        if not primary_monitor:
+            print("未找到主显示器，默认使用 1920x1080")
+            self.root.setGeometry(0, 0, 1920, 1080)
+        else:
+            self.root.setGeometry(
+                0, 0,
+                primary_monitor.width,
+                primary_monitor.height
+            )
 
     def consume_text(self) -> None:
-        """从消息队列中消耗UI更改"""
-        if self.message_queue.empty() is False:
+        """从消息队列中更新 UI 标签"""
+        if not self.message_queue.empty():
             message = self.message_queue.get()
             if 'CLEAR' in message:
                 for label in self.label_container:
-                    label.destroy()
+                    label.deleteLater()
                 self.label_container.clear()
             else:
                 for labels in message[1]:
-                    label = tk.Label(self.root, text=f"{labels[0]}", bg=self.transparent, fg=self.champ_text,
-                                     font=(settings.UI_FONT, 13), bd=0)
-                    label.place(x=labels[1][0] - 15, y=labels[1][1] + 30)
+                    label = QLabel(self.root)
+                    label.setText(f"{labels[0]}")
+                    label.setStyleSheet(
+                        f"color: {self.champ_color.name(QColor.NameFormat.HexArgb)};"
+                        "background: transparent;"
+                    )
+                    label.setFont(QFont(settings.UI_FONT, 13))
+                    label.move(QPoint(labels[1][0] - 15, labels[1][1] + 30))
+                    label.show()
                     self.label_container.append(label)
 
-        self.root.after(ms=1, func=self.consume_text)
+        # 继续监听队列
+        QTimer.singleShot(1, self.consume_text)
 
     def ui_loop(self) -> None:
-        """无限运行以处理UI更改的循环"""
+        """启动 UI 事件循环"""
         self.consume_text()
-        self.root.mainloop()
+        self.app.exec()

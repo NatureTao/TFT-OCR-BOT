@@ -1,4 +1,4 @@
-from PySide6.QtCore import Qt, Signal, QThread, QRunnable
+from PySide6.QtCore import Qt, Signal, QThread, QRunnable, QObject
 from PySide6.QtGui import QPixmap, QImage, QColor
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel
 from qfluentwidgets import CardWidget, AvatarWidget, ProgressBar
@@ -109,51 +109,85 @@ class HomeUserInfo(CardWidget):
         self.hBoxLayout.addLayout(self.userInfoVBox)
 
         # 状态数据展示容器
-        self.startInfo = HomeStateInfo()
-        self.startInfo.setMaximumWidth(165)
-        self.startInfo.setMinimumWidth(165)
-        self.hBoxLayout.addWidget(self.startInfo, Qt.AlignmentFlag.AlignRight)
+        # self.startInfo = HomeStateInfo()
+        # self.startInfo.setMaximumWidth(165)
+        # self.startInfo.setMinimumWidth(165)
+        # self.hBoxLayout.addWidget(self.startInfo, Qt.AlignmentFlag.AlignRight)
 
-    def updateData(self):
+    def updateData(self, lol_service=None):
         print("刷新数据")
-        # 更新头像
-        if lol.avatar is None:
+        # 使用传入的 lol_service 对象或全局 lol 对象
+        data = lol_service if lol_service else lol
+        
+        # 批量收集所有需要更新的 UI 元素，减少重绘次数
+        updates_needed = False
+        
+        # 准备头像更新
+        if data.avatar is None:
             image = QImage("icon/default.jpg")  # 默认头像
         else:
             image = QImage()
-            image.loadFromData(lol.avatar)
+            image.loadFromData(data.avatar)
         scaled_image = image.scaled(90, 90)  # 缩放图片
-        self.avatar.setPixmap(QPixmap.fromImage(scaled_image))
+        
+        # 开始批量更新 UI
+        self.setUpdatesEnabled(False)  # 暂时禁用更新以减少闪烁
+        
+        try:
+            # 更新头像
+            self.avatar.setPixmap(QPixmap.fromImage(scaled_image))
+            
+            # 更新进度环相关数据
+            if self.rg.maximum() != int(data.xpUntilNextLevel):
+                self.rg.setMaximum(int(data.xpUntilNextLevel))
+                updates_needed = True
+                
+            if self.rg.getVal() != int(data.xpSinceLastLevel):
+                self.rg.setValue(int(data.xpSinceLastLevel))
+                updates_needed = True
+                
+            if self.rg.bottomText != str(data.summonerLevel):
+                self.rg.bottomText = str(data.summonerLevel)
+                updates_needed = True
+            
+            # 更新通行证信息
+            if self.passName.text() != data.pass_name:
+                self.passName.setText(data.pass_name)
+                updates_needed = True
+                
+            if self.passNum.text() != str(data.currentLevel):
+                self.passNum.setText(str(data.currentLevel))
+                updates_needed = True
+            
+            # 更新通行证经验条
+            if self.passLevel.maximum() != int(data.totalLevelXP):
+                self.passLevel.setMaximum(int(data.totalLevelXP))
+                updates_needed = True
+                
+            if self.passLevel.getVal() != int(data.currentLevelXP):
+                self.passLevel.setValue(int(data.currentLevelXP))
+                updates_needed = True
+            
+            # 更新货币信息
+            if self.currencyBlueNumLabel.text() != str(data.lol_blue_essence):
+                self.currencyBlueNumLabel.setText(str(data.lol_blue_essence))
+                updates_needed = True
+                
+            if self.currencyOrangeNumLabel.text() != str(data.lol_orange_essence):
+                self.currencyOrangeNumLabel.setText(str(data.lol_orange_essence))
+                updates_needed = True
+                
+        finally:
+            self.setUpdatesEnabled(True)  # 重新启用更新
+            
+            # 如果有更新，强制重绘一次
+            if updates_needed:
+                self.update()
 
-        if not self.rg.maximum() == lol.xpUntilNextLevel:
-            self.rg.setMaximum(int(lol.xpUntilNextLevel))
-
-        if not self.rg.getVal() == lol.xpSinceLastLevel:
-            self.rg.setValue(int(lol.xpSinceLastLevel))
-
-        if not self.rg.bottomText == str(lol.summonerLevel):
-            self.rg.bottomText = str(lol.summonerLevel)
-
-        # 更新通行证名称
-        if not self.passName.text() == lol.pass_name:
-            self.passName.setText(lol.pass_name)  # 通行证名称
-
-        # 更新通行证等级
-        if not self.passNum.text() == str(lol.currentLevel):
-            self.passNum.setText(str(lol.currentLevel))  # 通行证等级
-
-        # 更新通行证经验条
-        if not self.passLevel.maximum() == int(lol.totalLevelXP):
-            self.passLevel.setMaximum(int(lol.totalLevelXP))
-        if not self.passLevel.getVal() == int(lol.currentLevelXP):
-            self.passLevel.setValue(int(lol.currentLevelXP))
-
-        # 更新货币
-        if not self.currencyBlueNumLabel.text() == str(lol.lol_blue_essence):
-            self.currencyBlueNumLabel.setText(str(lol.lol_blue_essence))
-
-        if not self.currencyOrangeNumLabel.text() == str(lol.lol_orange_essence):
-            self.currencyOrangeNumLabel.setText(str(lol.lol_orange_essence))
+# 创建信号类
+class RefreshSignals(QObject):
+    """用于在线程间传递信号的类"""
+    finished = Signal(object)  # 传递 lol 对象
 
 class RefreshClientThread(QThread):
     """用户刷新客户端信息"""
@@ -174,8 +208,10 @@ class RefreshClientThread(QThread):
 class RefreshTask(QRunnable):
     def __init__(self, callback):
         super().__init__()
-        self.callback = callback
+        self.signals = RefreshSignals()
+        self.signals.finished.connect(callback)
 
     def run(self):
         lol.refresh_client()
-        self.callback()
+        # 发送信号而不是直接调用回调
+        self.signals.finished.emit(lol)

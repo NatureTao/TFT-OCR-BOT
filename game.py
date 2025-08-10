@@ -28,7 +28,7 @@ class Game:
         self.message_queue = message_queue
         self.arena = Arena(self.message_queue)
         self.round: list[str, int] = ["0-0", 0]
-        self.time: None = None
+        self.time = None
         self.forfeit_time: int = settings.FORFEIT_TIME + random.randint(50, 150)
         self.found_window = False
 

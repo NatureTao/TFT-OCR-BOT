@@ -1,7 +1,6 @@
-"""
-首页页面组件
-"""
+"""首页页面组件"""
 import threading
+from datetime import datetime
 
 from PySide6.QtCore import QTimer, QThreadPool
 from PySide6.QtWidgets import QFrame, QVBoxLayout
@@ -37,20 +36,23 @@ class Home(QFrame):
         self.timer.start(10000)  # 刷新时间10秒
 
     def start_refresh_thread(self):
+        # 使用新的 RefreshTask 实现
         task = RefreshTask(self.userInfoModule.updateData)
         QThreadPool.globalInstance().start(task)
 
     def info_log(self, msg: str) -> None:
         """给首页控制台添加信息"""
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         current_html = self.consoleModule.textEdit.toHtml()
-        new_log = f'<h3 style="color:#7a7374">[信息] {msg}</h3>'
+        new_log = f'<h3 style="color:#7a7374">{current_time}[信息] {msg}</h3>'
         updated_html = current_html + new_log
         self.consoleModule.textEdit.setHtml(updated_html)
 
     def success_log(self, msg: str) -> None:
         """给首页控制台添加信息"""
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         current_html = self.consoleModule.textEdit.toHtml()
-        new_log = f'<h3 style="color:#12aa9c">[信息] {msg}</h3>'
+        new_log = f'<h3 style="color:#12aa9c">{current_time}[信息] {msg}</h3>'
         updated_html = current_html + new_log
         self.consoleModule.textEdit.setHtml(updated_html)
 

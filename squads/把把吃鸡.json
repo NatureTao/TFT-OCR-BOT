@@ -1,0 +1,100 @@
+{
+    "COMP": {
+        "亚托克斯": {
+            "board_position": 23,
+            "items": [],
+            "level": 2,
+            "final_comp": false,
+            "center": false
+        },
+        "瑟提": {
+            "board_position": 17,
+            "items": [],
+            "level": 3,
+            "final_comp": true,
+            "center": false
+        },
+        "普朗克": {
+            "board_position": 25,
+            "items": [],
+            "level": 2,
+            "final_comp": true,
+            "center": false
+        },
+        "乌迪尔": {
+            "board_position": 26,
+            "items": [
+                "泰坦的坚决",
+                "斯特拉克的挑战护手",
+                "离子火花"
+            ],
+            "level": 2,
+            "final_comp": true,
+            "center": false
+        },
+        "佛耶戈": {
+            "board_position": 27,
+            "items": [
+                "强袭者的链枷",
+                "正义之手",
+                "夜之锋刃"
+            ],
+            "level": 3,
+            "final_comp": true,
+            "center": true
+        },
+        "凯尔": {
+            "board_position": 20,
+            "items": [],
+            "level": 2,
+            "final_comp": true,
+            "center": false
+        },
+        "卢锡安": {
+            "board_position": 0,
+            "items": [],
+            "level": 2,
+            "final_comp": false,
+            "center": false
+        },
+        "卡莎": {
+            "board_position": 4,
+            "items": [],
+            "level": 2,
+            "final_comp": true,
+            "center": false
+        },
+        "艾希": {
+            "board_position": 6,
+            "items": [
+                "红霸符",
+                "海妖之怒",
+                "强袭者的链枷"
+            ],
+            "level": 3,
+            "final_comp": true,
+            "center": false
+        }
+    },
+    "AUGMENTS": [
+        "英勇福袋",
+        "英勇福袋+",
+        "英勇福袋++",
+        "操纵商店+",
+        "休眠锻炉",
+        "魔法投掷",
+        "拾荒者",
+        "便携锻炉",
+        "潘朵拉的装备",
+        "潘朵拉的装备 II",
+        "潘朵拉的装备 III",
+        "满意的织法者"
+    ],
+    "AVOID_AUGMENTS": [],
+    "FRUIT": [
+        "双重打击",
+        "延展手臂",
+        "替身忍术"
+    ],
+    "AVOID_FRUIT": []
+}

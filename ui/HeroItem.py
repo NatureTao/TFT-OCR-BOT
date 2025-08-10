@@ -61,9 +61,9 @@ class HeroItem(CardWidget):
             else:
                 editItem.heroNameInput.setText('')
 
-            editItem.weaponry1.setText(self.items[0])
-            editItem.weaponry2.setText(self.items[1])
-            editItem.weaponry3.setText(self.items[2])
+            editItem.weaponry1.setText(self.items[0] if len(self.items) > 0 and self.items[0] is not None else '')
+            editItem.weaponry2.setText(self.items[1] if len(self.items) > 0 and self.items[1] is not None else '')
+            editItem.weaponry3.setText(self.items[2] if len(self.items) > 0 and self.items[2] is not None else '')
             editItem.starGroup.buttons()[self.level-1].setChecked(True)
             editItem.center.setChecked(self.center)
             editItem.necessaryBtn.setChecked(self.final_comp)
@@ -131,7 +131,7 @@ class HeroItem(CardWidget):
         """转换为 JSON 可序列化的字典格式"""
         return {
             "board_position": self.index,
-            "items": self.items,
+            "items": [item for item in self.items if item != ""],
             "level": self.level,
             "final_comp": self.final_comp,
             "center": self.center,

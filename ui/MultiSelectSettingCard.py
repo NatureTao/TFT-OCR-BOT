@@ -45,8 +45,8 @@ class MultiSelectSettingCard(ExpandSettingCard):
         """创建等级复选框(平铺布局)"""
         scroll = ScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         scroll.setFrameShape(QFrame.NoFrame)
 
         container = QWidget()
@@ -60,7 +60,7 @@ class MultiSelectSettingCard(ExpandSettingCard):
         self.gridLayout.setContentsMargins(0, 5, 10, 5)
 
         # 关键修改1：设置布局的对齐方式为水平居中
-        self.gridLayout.setAlignment(Qt.AlignHCenter)
+        self.gridLayout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         # 创建复选框
         self.checkboxes = {}
@@ -74,7 +74,7 @@ class MultiSelectSettingCard(ExpandSettingCard):
             self.gridLayout.addWidget(cb, row, col)
 
             # 关键修改2：设置每个复选框的对齐方式
-            self.gridLayout.setAlignment(cb, Qt.AlignHCenter)
+            self.gridLayout.setAlignment(cb, Qt.AlignmentFlag.AlignHCenter)
 
         scroll.setWidget(container)
         self.viewLayout.addWidget(scroll)

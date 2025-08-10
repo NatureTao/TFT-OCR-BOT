@@ -92,26 +92,34 @@ class LOLService(object):
         self.tft_star_fragments = "未知"  # 星之碎片
 
     def refresh_client(self):
+        # 检查客户端运行时间，如果太短则不进行刷新
         if get_client_uptime() < 25:
             self.empty()
             return
+            
         try:
-            # print("连接客户端")
+            # 获取客户端连接信息
             self.get_client()
-            self.get_player_info()
-            self.get_pass_info()
-            self.get_avatar()
-            self.get_player_wallet()
+            
+            # 使用会话对象来复用连接，减少连接建立的开销
+            with requests.Session() as session:
+                # 设置会话的基本认证和验证选项
+                session.auth = HTTPBasicAuth('riot', self.remoting_auth_token)
+                session.verify = False
+                session.timeout = 5  # 减少超时时间
+                
+                # 并行获取所有数据
+                self.get_player_info(session)
+                self.get_pass_info(session)
+                self.get_avatar(session)
+                self.get_player_wallet(session)
 
-        except ConnectionError as e:
+        except ConnectionError:
             self.empty()
-        except RequestException as e:
+        except RequestException:
             self.empty()
-            pass
-            # raise RequestException("客户端正在启动中")
-        except Exception as e:
+        except Exception:
             self.empty()
-            pass
 
     def get_client(self) -> None:
         """获取英雄联盟客户端数据 如端口 令牌"""
@@ -127,85 +135,114 @@ class LOLService(object):
         else:
             raise ConnectionError("客户端未启动")
 
-    def get_player_info(self) -> any:
+    def get_player_info(self, session=None) -> any:
         """获取玩家基本信息"""
         try:
-            status = requests.get(
-                f"{self.server_url}/lol-summoner/v1/current-summoner",
-                auth=HTTPBasicAuth('riot', self.remoting_auth_token),
-                timeout=10,
-                verify=False,
-            )
-            if status.status_code == 200:
-                self.gameName = status.json()["gameName"]
-                self.profileIconId = status.json()["profileIconId"]
-                self.summonerLevel = status.json()["summonerLevel"]
-                self.tagLine = status.json()["tagLine"]
-                self.xpSinceLastLevel = status.json()["xpSinceLastLevel"]
-                self.xpUntilNextLevel = status.json()["xpUntilNextLevel"]
-        except ConnectionError:
-            return None
-
-    def get_player_wallet(self) -> any:
-        """获取玩家货币信息"""
-        try:
-            status = requests.get(
-                f"{self.server_url}/lol-inventory/v1/wallet/me",
-                auth=HTTPBasicAuth('riot', self.remoting_auth_token),
-                timeout=10,
-                verify=False,
-            )
-            if status.status_code == 200:
-                self.RP = status.json().get('RP', "未知")  # 点卷
-                self.lol_blue_essence = status.json().get('lol_blue_essence', "未知")  # 蓝色精粹
-                self.lol_orange_essence = status.json().get('lol_orange_essence', "未知")  # 橙色精粹
-                self.lol_mythic_essence = status.json().get('lol_mythic_essence', "未知")  # 神话精粹
-                self.TFT_TREASURE_TROVE_TOKEN = status.json().get('TFT_TREASURE_TROVE_TOKEN', "未知")  # 云石
-                self.tft_standard_coin = status.json().get('tft_standard_coin', "未知")  # 云顶召唤水晶
-                self.tft_star_fragments = status.json().get('tft_star_fragments', "未知")  # 星之碎片
-
-        except ConnectionError:
-            return None
-
-    def get_pass_info(self) -> any:
-        """获取通行证基本信息"""
-        try:
-            status = requests.get(
-                f"{self.server_url}/lol-event-hub/v1/events",
-                auth=HTTPBasicAuth('riot', self.remoting_auth_token),
-                timeout=10,
-                verify=False,
-            )
-            if status.status_code == 200:
-                self.pass_id = status.json()[len(status.json())-1]["eventId"]
-                self.pass_name = status.json()[len(status.json())-1]["eventInfo"]['eventName']
-
-                _ = requests.get(
-                    f"{self.server_url}/lol-event-hub/v1/events/{self.pass_id}/reward-track/xp",
+            # 使用传入的会话对象或创建新的请求
+            if session:
+                status = session.get(f"{self.server_url}/lol-summoner/v1/current-summoner")
+            else:
+                status = requests.get(
+                    f"{self.server_url}/lol-summoner/v1/current-summoner",
                     auth=HTTPBasicAuth('riot', self.remoting_auth_token),
                     timeout=10,
                     verify=False,
                 )
+                
+            if status.status_code == 200:
+                data = status.json()
+                # 一次性获取所有数据，减少字典查找次数
+                self.gameName = data.get("gameName", "未知")
+                self.profileIconId = data.get("profileIconId", "未知")
+                self.summonerLevel = data.get("summonerLevel", 0)
+                self.tagLine = data.get("tagLine", "未知")
+                self.xpSinceLastLevel = data.get("xpSinceLastLevel", 0)
+                self.xpUntilNextLevel = data.get("xpUntilNextLevel", 0)
+        except Exception:
+            return None
+
+    def get_player_wallet(self, session=None) -> any:
+        """获取玩家货币信息"""
+        try:
+            # 使用传入的会话对象或创建新的请求
+            if session:
+                status = session.get(f"{self.server_url}/lol-inventory/v1/wallet/me")
+            else:
+                status = requests.get(
+                    f"{self.server_url}/lol-inventory/v1/wallet/me",
+                    auth=HTTPBasicAuth('riot', self.remoting_auth_token),
+                    timeout=10,
+                    verify=False,
+                )
+                
+            if status.status_code == 200:
+                data = status.json()
+                # 一次性获取所有数据，减少字典查找次数
+                self.RP = data.get('RP', "未知")  # 点卷
+                self.lol_blue_essence = data.get('lol_blue_essence', "未知")  # 蓝色精粹
+                self.lol_orange_essence = data.get('lol_orange_essence', "未知")  # 橙色精粹
+                self.lol_mythic_essence = data.get('lol_mythic_essence', "未知")  # 神话精粹
+                self.TFT_TREASURE_TROVE_TOKEN = data.get('TFT_TREASURE_TROVE_TOKEN', "未知")  # 云石
+                self.tft_standard_coin = data.get('tft_standard_coin', "未知")  # 云顶召唤水晶
+                self.tft_star_fragments = data.get('tft_star_fragments', "未知")  # 星之碎片
+
+        except Exception:
+            return None
+
+    def get_pass_info(self, session=None) -> any:
+        """获取通行证基本信息"""
+        try:
+            # 使用传入的会话对象或创建新的请求
+            if session:
+                status = session.get(f"{self.server_url}/lol-event-hub/v1/events")
+            else:
+                status = requests.get(
+                    f"{self.server_url}/lol-event-hub/v1/events",
+                    auth=HTTPBasicAuth('riot', self.remoting_auth_token),
+                    timeout=10,
+                    verify=False,
+                )
+                
+            if status.status_code == 200:
+                self.pass_id = status.json()[len(status.json())-1]["eventId"]
+                self.pass_name = status.json()[len(status.json())-1]["eventInfo"]['eventName']
+
+                # 使用传入的会话对象或创建新的请求
+                if session:
+                    _ = session.get(f"{self.server_url}/lol-event-hub/v1/events/{self.pass_id}/reward-track/xp")
+                else:
+                    _ = requests.get(
+                        f"{self.server_url}/lol-event-hub/v1/events/{self.pass_id}/reward-track/xp",
+                        auth=HTTPBasicAuth('riot', self.remoting_auth_token),
+                        timeout=10,
+                        verify=False,
+                    )
+                    
                 if _.status_code == 200:
                     self.currentLevel = _.json()['currentLevel']
                     self.currentLevelXP = _.json()['currentLevelXP']
                     self.totalLevelXP = _.json()['totalLevelXP']
 
-        except ConnectionError:
+        except Exception:
             return None
 
-    def get_avatar(self) -> any:
+    def get_avatar(self, session=None) -> any:
         """获取用户客户端头像"""
         try:
-            status = requests.get(
-                f"{self.server_url}/lol-game-data/assets/v1/profile-icons/{self.profileIconId}.jpg",
-                auth=HTTPBasicAuth('riot', self.remoting_auth_token),
-                timeout=10,
-                verify=False,
-            )
+            # 使用传入的会话对象或创建新的请求
+            if session:
+                status = session.get(f"{self.server_url}/lol-game-data/assets/v1/profile-icons/{self.profileIconId}.jpg")
+            else:
+                status = requests.get(
+                    f"{self.server_url}/lol-game-data/assets/v1/profile-icons/{self.profileIconId}.jpg",
+                    auth=HTTPBasicAuth('riot', self.remoting_auth_token),
+                    timeout=10,
+                    verify=False,
+                )
+                
             if status.status_code == 200:
                 self.avatar = status.content
-        except ConnectionError:
+        except Exception:
             return None
 
 

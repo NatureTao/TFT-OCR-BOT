@@ -1,13 +1,17 @@
 import os
 import sys
+from pathlib import Path
 
-from PySide6.QtCore import Qt, QProcess
+from PySide6.QtCore import Qt, QProcess, Signal
 from PySide6.QtGui import QTextCursor
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
-from qfluentwidgets import CardWidget, TextEdit, FluentIcon, PrimaryPushButton
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel
+from qfluentwidgets import CardWidget, TextEdit, FluentIcon, PrimaryPushButton, EditableComboBox, qconfig, ToolButton
+
+from Setting import cfg
 
 
 class HomeConsole(CardWidget):
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.process = QProcess()
@@ -21,6 +25,24 @@ class HomeConsole(CardWidget):
         self.textEdit.setReadOnly(True)
         self.textEdit.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.textEdit.textBackgroundColor()
+        
+        # 添加阵容选择下拉框
+        self.squadSelectLayout = QHBoxLayout()
+        self.refreshBtn = ToolButton(FluentIcon.SYNC)
+        self.refreshBtn.clicked.connect(self.loadSquadsList)
+
+        self.squadComboBox = EditableComboBox()
+        self.squadComboBox.setPlaceholderText("选择一个阵容配置")
+        self.squadComboBox.setMaxVisibleItems(10)
+        self.squadComboBox.setMinimumWidth(200)
+        self.squadComboBox.currentIndexChanged.connect(self.onSquadSelected)
+        self.squadComboBox.textChanged.connect(self.onSquadTextChanged)
+        
+        # 加载阵容列表
+        self.loadSquadsList()
+
+        self.squadSelectLayout.addWidget(self.squadComboBox)
+        self.squadSelectLayout.addWidget(self.refreshBtn)
 
         # 启动按钮
         self.startButton = PrimaryPushButton(FluentIcon.PLAY, '启动程序')
@@ -33,15 +55,19 @@ class HomeConsole(CardWidget):
         self.startButton.setFixedSize(180, 35)
         self.startButton.clicked.connect(self.start_button_clicked)
 
-        self.hBoxLayout.addStretch()  # 占据左侧空间
+        self.hBoxLayout.addLayout(self.squadSelectLayout)
+        self.hBoxLayout.addStretch()
         self.hBoxLayout.addWidget(self.startButton)
+
+
+
+
 
         # 构建布局
         self.vBoxLayout.addWidget(self.textEdit)
         self.vBoxLayout.addLayout(self.hBoxLayout)
 
     def handle_stdout(self):
-        # output = self.process.readAllStandardOutput().data().decode()
         while self.process.canReadLine():  # 按行读取
             output = self.process.readLine().data().decode().strip()
 
@@ -78,8 +104,6 @@ class HomeConsole(CardWidget):
 
         current_html = self.textEdit.toHtml()
         # 构造新的日志内容
-        new_log = f''
-
         if self.status:
             # 结束游戏脚本
             if self.process.state() == QProcess.ProcessState.Running:
@@ -113,8 +137,17 @@ class HomeConsole(CardWidget):
             # 运行游戏脚本
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 获取项目根目录路径
             main_script = os.path.join(project_root, "main.py")
-            self.process.start(sys.executable, [main_script])
-            new_log = f'<h3 style="color:#EA6334">[信息] 脚本已启动 </h3>'
+            
+            # 获取当前选择的阵容
+            selected_squad = cfg.SELECTED_SQUAD.value
+            
+            # 如果有选择阵容，则传递参数
+            if selected_squad:
+                self.process.start(sys.executable, [main_script, "--squad", selected_squad])
+                new_log = f'<h3 style="color:#EA6334">[信息] 脚本已启动，使用阵容: {selected_squad} </h3>'
+            else:
+                self.process.start(sys.executable, [main_script])
+                new_log = f'<h3 style="color:#EA6334">[信息] 脚本已启动，未指定阵容 </h3>'
             print("脚本已启动")
 
             self.status = True
@@ -155,3 +188,45 @@ class HomeConsole(CardWidget):
         cursor.movePosition(QTextCursor.MoveOperation.End)  # 正确引用 QTextCursor.End
         self.textEdit.setTextCursor(cursor)
         self.textEdit.ensureCursorVisible()
+        
+    def loadSquadsList(self):
+        """加载阵容列表并同步当前选中项"""
+        squads_path = Path(__file__).parent.parent / "squads"
+        squads_path.mkdir(parents=True, exist_ok=True)
+
+        # 获取所有json文件名（不带扩展名）
+        squad_files = sorted(f.stem for f in squads_path.glob("*.json"))
+
+        # 更新下拉框
+        self.squadComboBox.blockSignals(True)  # 防止触发信号
+        self.squadComboBox.clear()
+        self.squadComboBox.addItems(squad_files)
+
+        # 设置当前选中项（从配置读取）
+        current_squad = cfg.SELECTED_SQUAD.value
+        index = self.squadComboBox.findText(current_squad)
+        self.squadComboBox.setCurrentIndex(index if index >= 0 else -1)
+        self.squadComboBox.blockSignals(False)
+    
+    def onSquadSelected(self, index):
+        """阵容选择变化处理"""
+        if index >= 0:
+            selected = self.squadComboBox.currentText()
+            cfg.set(cfg.SELECTED_SQUAD, selected)  # 更新配置值
+            cfg.save()  # 立即保存到 setting.json
+
+            # 日志输出
+            self.appendLog(f"[信息] 已选择阵容: {selected}")
+    
+    def onSquadTextChanged(self, text):
+        """阵容文本变化处理"""
+        # 当用户输入新阵容名称时，不立即保存，等待用户按回车或选择
+        pass
+
+    def appendLog(self, message):
+        """辅助方法：添加日志"""
+        html = f'<h3 style="color:#12aa9c">{message}</h3>'
+        if self.textEdit.toPlainText():
+            html = self.textEdit.toHtml() + html
+        self.textEdit.setHtml(html)
+        self.scroll_to_bottom()

@@ -28,6 +28,7 @@ def getData(url: str):
     COMBINED_ITEMS: set[str] = set()  # 合成装备 2
     FULL_ITEMS = {}  # 合成公式
     NON_CRAFTABLE_ITEMS: set[str] = set()  # 特殊装备 4 5 7
+    SACRED_MATCHED_GROUP:dict[str,str] = dict()
 
     json_data = askURL(url)
     # 构建符合我们格式的数据
@@ -56,6 +57,10 @@ def getData(url: str):
                                 name = _['name'] = "暴风之剑" if _['name'] == "暴风大剑" else _['name']
                                 name2 = __['name'] = "暴风之剑" if __['name'] == "暴风大剑" else __['name']
                                 FULL_ITEMS[item['name']] = (name, name2)
+        elif item['type'] == '3':
+            prefix = item['name'].partition("版")[0] + item['name'].partition("版")[1]
+            suffix = item['name'].partition("版")[2]
+            SACRED_MATCHED_GROUP[prefix+suffix] = suffix
 
         elif item['type'] == '4' or item['type'] == '5' or item['type'] == '7':
             NON_CRAFTABLE_ITEMS.add(item['name'])
@@ -65,13 +70,15 @@ def getData(url: str):
     BASIC_ITEM.add("装备拆卸器")
     BASIC_ITEM.add("重铸器")
     BASIC_ITEM.add("装备重铸器")
-    BASIC_ITEM.add("强化果实拆卸器")
+    BASIC_ITEM.add("强化果实移除器")
     BASIC_ITEM.add("强化果实")
 
     temp.append(BASIC_ITEM)
     temp.append(COMBINED_ITEMS)
     temp.append(FULL_ITEMS)
     temp.append(NON_CRAFTABLE_ITEMS)
+    temp.append(SACRED_MATCHED_GROUP)
+
     return temp
 
 
@@ -175,7 +182,7 @@ def updateToJson(data_list) -> None:
                     existingData["COMBINED_ITEMS"] = list(data_list[1])
                     existingData["FULL_ITEMS"] = data_list[2]
                     existingData["NON_CRAFTABLE_ITEMS"] = list(data_list[3])
-
+                    existingData["SACRED_MATCHED_GROUP"] = data_list[4]
                 with open(existing_path, "w", encoding="utf-8") as f:
                     json.dump(existingData, f, ensure_ascii=False, indent=4)
 
@@ -193,4 +200,5 @@ if __name__ == '__main__':
     baseurl = "https://game.gtimg.cn/images/lol/act/img/tft/js/equip.js"  # 目标网页
     data_list = getData(baseurl)
     # updateChange(data_list)
+    # print(data_list)
     updateToJson(data_list)

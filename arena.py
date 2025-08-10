@@ -42,7 +42,9 @@ class Arena:
         self.augment_roll = True
         self.spam_roll = False
         self.HP: list = [None]
+
         self.active_portal: str = ""  # 记录回合奇遇
+        self.all_center_expect_fruit = False # 所有C位都获得满意果实
 
     def portal_augment(self) -> None:
         """检查区域扩展并相应地设置标志"""
@@ -55,9 +57,9 @@ class Arena:
 
         augment_flags = {
             "基础装备锻造器": "清除锻造器在 回合 1-3",
+            "神器锻造器": "清除锻造器在 回合 1-3",
             "魔像训练师": "移动魔像到空白位置在 回合 1-4",
-            "黑客:幸运商店": "要做什么操作呢?",
-            "黑入:笫四个强化符文 ":'选择额外符文在 回合2-6'
+
         }
 
         augment_name = next((name for name in augment_flags if name in region), None)
@@ -93,7 +95,8 @@ class Arena:
                         final_comp=comps.COMP[champ_name]["final_comp"],
                         trait1=game_assets.CHAMPIONS[champ_name]["Trait1"],
                         trait2=game_assets.CHAMPIONS[champ_name]["Trait2"],
-                        trait3=game_assets.CHAMPIONS[champ_name]["Trait3"]
+                        trait3=game_assets.CHAMPIONS[champ_name]["Trait3"],
+                        center=comps.COMP[champ_name]["center"],
                     )
                     self.champs_to_buy[champ_name] -= 1
 
@@ -124,7 +127,8 @@ class Arena:
             final_comp=comps.COMP[name]["final_comp"],
             trait1=game_assets.CHAMPIONS[name]["Trait1"],
             trait2=game_assets.CHAMPIONS[name]["Trait2"],
-            trait3=game_assets.CHAMPIONS[name]["Trait3"]
+            trait3=game_assets.CHAMPIONS[name]["Trait3"],
+            center=comps.COMP[name]["center"],
         )
 
         mk_functions.move_mouse(screen_coords.DEFAULT_LOC.get_coords())
@@ -413,38 +417,79 @@ class Arena:
                 index += 1
             self.items[index] = None
 
-    def add_item_to_champ(self, item_index: int, champ: Champion) -> None:
-        """获取物品的index和champ并装备该装备"""
+    def handle_equip_item(self, item_index: int, champ, is_sacred: bool = False):
+        """处理装备穿戴的通用方法
+
+        Args:
+            item_index: 物品索引
+            champ: 英雄对象
+            is_sacred: 是否为光明装备
+        """
         item = self.items[item_index]
-        similar_item = game_assets.SACRED_MATCHED_GROUP.get(item)
+        similar_item = game_assets.SACRED_MATCHED_GROUP.get(item) if is_sacred else item
 
-        # 普通成装
-        if item in champ.build:
-            mk_functions.left_click_drag(screen_coords.ITEM_POS[item_index][0].get_coords(), champ.coords)
-            print(f"  成装 {item} 给 {champ.name}")
-            champ.completed_items.append(item)
-            champ.build.remove(item)
-            index = self.items.index(item)
-            while index < len(self.items) - 1:
-                self.items[index] = self.items[index + 1]
-                index += 1
-            self.items[index] = None
-            sleep(0.01)
-            return
-
-        # 光明成装
+        # 检查是否在英雄的build列表中
         if similar_item in champ.build:
+            # 执行拖拽操作
             mk_functions.left_click_drag(screen_coords.ITEM_POS[item_index][0].get_coords(), champ.coords)
-            print(f"  光明成装 {item} 给 {champ.name}")
+
+            # 打印日志
+            item_type = "光明成装" if is_sacred else "成装"
+            print(f"  {item_type} {item} 给 {champ.name}")
+
+            # 更新英雄装备列表
             champ.completed_items.append(similar_item)
             champ.build.remove(similar_item)
+
+            # 更新物品栏
             index = self.items.index(item)
             while index < len(self.items) - 1:
                 self.items[index] = self.items[index + 1]
                 index += 1
             self.items[index] = None
+
             sleep(0.01)
-            return
+            return True
+        return False
+
+    def add_item_to_champ(self, item_index: int, champ: Champion) -> None:
+        """获取物品的index和champ并装备该装备"""
+
+        # 尝试普通成装
+        if not self.handle_equip_item(item_index, champ):
+            # 尝试光明成装
+            self.handle_equip_item(item_index, champ, is_sacred=True)
+
+        item = self.items[item_index]
+
+        # similar_item = game_assets.SACRED_MATCHED_GROUP.get(item)
+        # # 普通成装
+        # if item in champ.build:
+        #     mk_functions.left_click_drag(screen_coords.ITEM_POS[item_index][0].get_coords(), champ.coords)
+        #     print(f"  成装 {item} 给 {champ.name}")
+        #     champ.completed_items.append(item)
+        #     champ.build.remove(item)
+        #     index = self.items.index(item)
+        #     while index < len(self.items) - 1:
+        #         self.items[index] = self.items[index + 1]
+        #         index += 1
+        #     self.items[index] = None
+        #     sleep(0.01)
+        #     return
+        #
+        # # 光明成装
+        # if similar_item in champ.build:
+        #     mk_functions.left_click_drag(screen_coords.ITEM_POS[item_index][0].get_coords(), champ.coords)
+        #     print(f"  光明成装 {item} 给 {champ.name}")
+        #     champ.completed_items.append(similar_item)
+        #     champ.build.remove(similar_item)
+        #     index = self.items.index(item)
+        #     while index < len(self.items) - 1:
+        #         self.items[index] = self.items[index + 1]
+        #         index += 1
+        #     self.items[index] = None
+        #     sleep(0.01)
+        #     return
 
         # 移除纹章逻辑
         if champ.does_need_trait():
@@ -459,6 +504,50 @@ class Arena:
                 self.items[index] = None
                 sleep(0.01)
                 return
+        # 给果实逻辑 或者刷果实逻辑
+        if champ.check_center(): # 是 C位
+            if not champ.check_eaten_fruit(): # 没吃
+                if item == "强化果实":
+                    print(f"强化果实给 {champ.name}")
+                    mk_functions.left_click_drag(screen_coords.ITEM_POS[item_index][0].get_coords(), champ.coords)
+                    self.pick_fruits(champ) # 选择水果
+                    index = self.items.index(item)
+                    while index < len(self.items) - 1:
+                        self.items[index] = self.items[index + 1]
+                        index += 1
+                    self.items[index] = None
+                    return
+
+            elif not champ.check_expect_fruit():
+                if item == "强化果实移除器":
+                    print(f"移除 {champ.name} 的水果")
+                    mk_functions.left_click_drag(screen_coords.ITEM_POS[item_index][0].get_coords(), champ.coords)
+                    champ.eatenFruit = False
+                    # 在次检查当前位置还是移除器
+                    index = self.items.index(item)
+                    mk_functions.move_mouse(screen_coords.ITEM_POS[index][0].get_coords())
+                    item: str = ocr.get_text(
+                        screenxy=screen_coords.ITEM_POS[index][1].get_coords(),
+                        scale=1
+                    )
+                    valid = arena_functions.valid_item(item)
+                    if valid is not None and valid != "强化果实移除器":
+                        while index < len(self.items) - 1:
+                            self.items[index] = self.items[index + 1]
+                            index += 1
+                        self.items[index] = None
+                    return
+
+        elif self.all_center_expect_fruit and not champ.check_eaten_fruit():
+            print(f"所有c位都获得了水果而且是预期的,剩下的水果给 {champ.name}")
+            mk_functions.left_click_drag(screen_coords.ITEM_POS[item_index][0].get_coords(), champ.coords)
+            self.pick_fruits(champ)  # 选择水果
+            index = self.items.index(item)
+            while index < len(self.items) - 1:
+                self.items[index] = self.items[index + 1]
+                index += 1
+            self.items[index] = None
+            return
 
         if item in game_assets.FULL_ITEMS:
             if item in champ.build:
@@ -473,11 +562,11 @@ class Arena:
                 self.items[index] = None
 
         elif len(champ.current_building) == 0:
-            item_to_move: None = None
+            item_to_move: str|None = None
             for build_item in champ.build:
                 build_item_components: list = list(game_assets.FULL_ITEMS[build_item])
                 if item in build_item_components:
-                    item_to_move: None = item
+                    item_to_move = item
                     build_item_components.remove(item_to_move)
                     champ.current_building.append(
                         (build_item, build_item_components[0])
@@ -495,12 +584,12 @@ class Arena:
                     index += 1
                 self.items[index] = None
         else:
-            for builditem in champ.current_building:
-                if item == builditem[1]:
+            for buildItem in champ.current_building:
+                if item == buildItem[1]:
 
                     mk_functions.left_click_drag(screen_coords.ITEM_POS[item_index][0].get_coords(), champ.coords)
 
-                    champ.completed_items.append(builditem[0])
+                    champ.completed_items.append(buildItem[0])
                     champ.current_building.clear()
                     # self.items[self.items.index(item)] = None
                     index = self.items.index(item)
@@ -510,7 +599,7 @@ class Arena:
                     self.items[index] = None
 
                     print(f"  装备 {item} 给 {champ.name}")
-                    print(f"  合成 {builditem[0]}")
+                    print(f"  合成 {buildItem[0]}")
                     sleep(0.05)
                     return
 
@@ -622,7 +711,7 @@ class Arena:
             first_run = False
 
             # 获取回合剩于时间 单位秒 预防超时
-            if arena_functions.get_round_remaining_time() <= 6:
+            if arena_functions.get_round_remaining_time() <= 4:
                 return
 
     def buy_champion(self, champion, quantity) -> None:
@@ -654,24 +743,6 @@ class Arena:
         if arena_functions.get_gold() >= 4:
             mk_functions.buy_xp()
 
-    def pick_abnormal(self, gold: int, attempts=settings.MAX_REFRESH_ABNORMAL) -> None:
-        """从用户定义的异常突变优先级列表中选择一个"""
-        abnormalName: str = arena_functions.get_abnormal()
-        for potential in comps.ABRUPT_ANOMALY:
-            if potential in abnormalName and gold >= 1:
-                print(f"  选择异常突变BUFF {abnormalName}")
-                mk_functions.left_click(screen_coords.ABNORMAL_LOC.get_coords())
-                game_functions.default_pos()
-                return
-        if gold >= 2 and attempts >= 0:
-            mk_functions.reroll()  # 按下D键刷新BUFF
-            self.pick_abnormal(gold - 1, attempts - 1)
-        else:
-            print(f" [!]尝试刷新次数已用完")
-            mk_functions.left_click(screen_coords.ABNORMAL_LOC.get_coords())
-            game_functions.default_pos()
-            return
-
     def pick_augment(self) -> None:
         """从用户定义的强化优先级列表中选择一个强化，或者默认为不在避免列表中的强化"""
 
@@ -698,7 +769,7 @@ class Arena:
 
         if self.augment_roll:
             print("刷新强化符文")
-            for i in range(0, 4):
+            for i in range(0, 3):
                 mk_functions.left_click(screen_coords.AUGMENT_ROLL[i].get_coords())
             self.augment_roll = False
             self.pick_augment()
@@ -720,6 +791,47 @@ class Arena:
                 )
                 return
         mk_functions.left_click(screen_coords.AUGMENT_LOC[0].get_coords())
+
+    def pick_fruits(self,champ:Champion):
+        """ 选择当前传入英雄需要的强化果实 """
+        errorCount = 0
+        while True:
+            sleep(1)
+            fruits: list = []
+            for coords in screen_coords.FRUITS_POS:
+                fruit: str = ocr.get_text(
+                    screenxy=coords.get_coords(), scale=3
+                )
+                fruits.append(fruit)
+            print(f"强化果实: {fruits}")
+            if len(list(filter(None, fruits))) == 3 and '' not in fruits:
+                break
+            errorCount += 1
+            if errorCount > 3:
+                break
+        # 识别到强化果实
+        for potential in comps.FRUIT:
+            for fruit in fruits:
+                if potential in fruit:
+                    print(f"选择喜爱强化果实 {fruit}")
+                    mk_functions.left_click(
+                        screen_coords.FRUITS_LOC[fruits.index(fruit)].get_coords()
+                    )
+                    champ.eatenFruit = True # 吃过了
+                    champ.expect_fruit = True # 情果
+                    return
+
+        for potential in comps.AVOID_FRUIT:
+            for fruit in fruits:
+                if potential in fruit:
+                    print(f"选择讨厌强化果实 {fruit}")
+                    mk_functions.left_click(
+                        screen_coords.FRUITS_LOC[fruits.index(fruit)].get_coords()
+                    )
+                    champ.eatenFruit = True # 吃过了
+                    return
+        mk_functions.left_click(screen_coords.FRUITS_LOC[0].get_coords())
+        champ.eatenFruit = True  # 吃过了
 
     def find_blue_buff(self, screenshot=(517, 365, 1415, 699), difference_lv=30) -> int:
         """查找棋盘上魔像的位置"""
@@ -763,3 +875,4 @@ class Arena:
             for index, slot in enumerate(self.board_unknown)
         )
         self.message_queue.put(("LABEL", labels))
+

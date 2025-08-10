@@ -200,6 +200,21 @@ def bench_occupied_check() -> list:
 
 def valid_item(item: str) -> str | None:
     """检查参数1中传递的项是否有效 检测是否是装备名称"""
+    # 先尝试匹配完全相同的
+    if item in game_assets.ITEMS:
+        return item
+
+    # S15处理强化果实和移除器
+    if "强化果实" in item:
+        # 优先匹配更长的"强化果实XX"类物品
+        long_match = next(
+            (name for name in game_assets.ITEMS
+             if name.startswith("强化果实") and len(name) > len("强化果实")),
+            None
+        )
+        if long_match:
+            return long_match
+
     return next(
         (
             valid_item_name
@@ -210,10 +225,11 @@ def valid_item(item: str) -> str | None:
     )
 
 
+
+
 def get_items() -> list:
     """返回当前棋盘上装备的列表"""
     item_bench: list = []
-    counter = 0 # 读取错误装备计数器
     for positions in screen_coords.ITEM_POS:
         mk_functions.move_mouse(positions[0].get_coords())
         item: str = ocr.get_text(
@@ -222,10 +238,7 @@ def get_items() -> list:
         )
         valid = valid_item(item)
         if valid is None:
-            valid = '未知'
-            counter+=1
-            if counter > 3 :
-                break
+            break
         item_bench.append(valid)
     mk_functions.move_mouse(screen_coords.DEFAULT_LOC.get_coords())
     return item_bench

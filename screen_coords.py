@@ -21,27 +21,29 @@ BENCH_HEALTH_POS: list[Vec4] = [
 ]
 # 装备栏
 ITEM_POS: list[list] = [
-    [Vec2(28, 296), Vec4(GameWindow(127, 336, 290, 369))],
-    [Vec2(28, 347), Vec4(GameWindow(127, 387, 290, 420))],
-    [Vec2(28, 398), Vec4(GameWindow(127, 438, 290, 471))],
-    [Vec2(28, 449), Vec4(GameWindow(127, 489, 290, 522))],
-    [Vec2(28, 500), Vec4(GameWindow(127, 540, 290, 573))],
-    [Vec2(28, 551), Vec4(GameWindow(127, 591, 290, 624))],
-    [Vec2(28, 602), Vec4(GameWindow(127, 642, 290, 675))],
-    [Vec2(28, 653), Vec4(GameWindow(127, 693, 290, 726))],
-    [Vec2(28, 704), Vec4(GameWindow(127, 744, 290, 777))],
-    [Vec2(28, 755), Vec4(GameWindow(127, 795, 290, 828))],
+    # [Vec2(28, 296), Vec4(GameWindow(127, 336, 290, 369))], 1
+    # [Vec2(28, 347), Vec4(GameWindow(127, 387, 290, 420))], 2
+    [Vec2(28, 296), Vec4(GameWindow(127, 336, 390, 379))],
+    [Vec2(28, 347), Vec4(GameWindow(127, 387, 390, 430))],
+    [Vec2(28, 398), Vec4(GameWindow(127, 438, 390, 481))],
+    [Vec2(28, 449), Vec4(GameWindow(127, 489, 390, 532))],
+    [Vec2(28, 500), Vec4(GameWindow(127, 540, 390, 583))],
+    [Vec2(28, 551), Vec4(GameWindow(127, 591, 390, 634))],
+    [Vec2(28, 602), Vec4(GameWindow(127, 642, 390, 685))],
+    [Vec2(28, 653), Vec4(GameWindow(127, 693, 390, 736))],
+    [Vec2(28, 704), Vec4(GameWindow(127, 744, 390, 787))],
+    [Vec2(28, 755), Vec4(GameWindow(127, 795, 390, 838))],
     # 第二排
-    [Vec2(79, 296), Vec4(GameWindow(178, 336, 341, 369))],
-    [Vec2(79, 347), Vec4(GameWindow(178, 387, 341, 420))],
-    [Vec2(79, 398), Vec4(GameWindow(178, 438, 341, 471))],
-    [Vec2(79, 449), Vec4(GameWindow(178, 489, 341, 522))],
-    [Vec2(79, 500), Vec4(GameWindow(178, 540, 341, 573))],
-    [Vec2(79, 551), Vec4(GameWindow(178, 591, 341, 624))],
-    [Vec2(79, 602), Vec4(GameWindow(178, 642, 341, 675))],
-    [Vec2(79, 653), Vec4(GameWindow(178, 693, 341, 726))],
-    [Vec2(79, 704), Vec4(GameWindow(178, 744, 341, 777))],
-    [Vec2(79, 755), Vec4(GameWindow(178, 795, 341, 828))],
+    [Vec2(79, 296), Vec4(GameWindow(178, 336, 441, 379))],
+    [Vec2(79, 347), Vec4(GameWindow(178, 387, 441, 430))],
+    [Vec2(79, 398), Vec4(GameWindow(178, 438, 441, 481))],
+    [Vec2(79, 449), Vec4(GameWindow(178, 489, 441, 532))],
+    [Vec2(79, 500), Vec4(GameWindow(178, 540, 441, 583))],
+    [Vec2(79, 551), Vec4(GameWindow(178, 591, 441, 634))],
+    [Vec2(79, 602), Vec4(GameWindow(178, 642, 441, 685))],
+    [Vec2(79, 653), Vec4(GameWindow(178, 693, 441, 736))],
+    [Vec2(79, 704), Vec4(GameWindow(178, 744, 441, 787))],
+    [Vec2(79, 755), Vec4(GameWindow(178, 795, 441, 838))],
 
 ]
 #回合位置
@@ -131,7 +133,7 @@ ORDINARY_ANVIL_LOC: list[Vec2] = [
     Vec2(1234, 980),
 
 ]
-# 高级铁砧列表 偏移x +238
+# 高级铁砧识别列表 偏移x +238
 DIVINE_ANVIL_ITEM_POS: list[Vec4] = [
     Vec4(GameWindow(40, 0, 230, 36)),
     Vec4(GameWindow(278, 0, 468, 36)),
@@ -139,7 +141,7 @@ DIVINE_ANVIL_ITEM_POS: list[Vec4] = [
     Vec4(GameWindow(754, 0, 944, 36)),
     Vec4(GameWindow(992, 0, 1182, 36)),
 ]
-# 高级铁砧装备位置
+# 高级铁砧装备点击位置
 DIVINE_ANVIL_LOC: list[Vec2] = [
     Vec2(400, 985),
     Vec2(638, 985),
@@ -151,6 +153,19 @@ DIVINE_ANVIL_LOC: list[Vec2] = [
 
 # 现在退出
 EXIT_NOW_POS: Vec4 = Vec4(GameWindow(910, 560, 1029, 583))
+
+# 强化果实识别名称坐标
+FRUITS_POS: list[Vec4] = [
+    Vec4(GameWindow(449, 913, 667, 943)),
+    Vec4(GameWindow(817, 919, 990, 942)),
+    Vec4(GameWindow(1160, 918, 1338, 943)),
+]
+# 强化果实购买位置
+FRUITS_LOC: list[Vec2] = [
+    Vec2(550, 971),
+    Vec2(890, 971),
+    Vec2(1236, 971),
+    ]
 
 # 强化符文名称位置
 AUGMENT_POS: list[Vec4] = [
@@ -169,11 +184,12 @@ AUGMENT_LOC: list[Vec2] = [
 AUGMENT_ROLL: list[Vec2] = [Vec2(549, 875),
                             Vec2(960, 875),
                             Vec2(1363, 875),
-                            Vec2(1218, 860)
+                            # Vec2(1218, 860)
                             ]
 
 # 胜利POS
 VICTORY_POS: Vec4 = Vec4(GameWindow(906, 560, 1030, 587))
+
 # 买的地方
 BUY_LOC: list[Vec2] = [
     Vec2(575, 992),
@@ -182,26 +198,27 @@ BUY_LOC: list[Vec2] = [
     Vec2(1175, 992),
     Vec2(1375, 992),
 ]
-# 物品领取箱
-# ITEM_PICKUP_LOC: list[Vec2] = [
-#     Vec2(1460, 611),
-#     Vec2(406, 544),
-#     Vec2(1435, 486),
-#     Vec2(450, 440),
-#     Vec2(1380, 381),
-#     Vec2(644, 323),
-#     Vec2(1297, 262),
-#     Vec2(590, 215),
-# ]
-ITEM_PICKUP_LOC: list[Vec2] = [
-    Vec2(1490, 605),
-    Vec2(1293, 313),
-    Vec2(1093, 230),
-    Vec2(557, 194),
-    Vec2(683, 309),
-]
 
-# 板凳LOC
+# 拾取战利品坐标组
+ITEM_PICKUP_LOC: list[Vec2] = [
+    Vec2(1460, 611),
+    Vec2(406, 544),
+    Vec2(1435, 486),
+    Vec2(450, 440),
+    Vec2(1380, 381),
+    Vec2(644, 323),
+    Vec2(1297, 262),
+    Vec2(590, 215),
+]
+# ITEM_PICKUP_LOC: list[Vec2] = [
+#     Vec2(1490, 605),
+#     Vec2(1293, 313),
+#     Vec2(1093, 230),
+#     Vec2(557, 194),
+#     Vec2(683, 309),
+# ]
+
+# 备战区点击坐标
 BENCH_LOC: list[Vec2] = [
     Vec2(425, 777),
     Vec2(542, 777),
@@ -245,19 +262,23 @@ BOARD_LOC: list[Vec2] = [
     Vec2(1138, 423),
     Vec2(1251, 423),
 ]
-# 旋转木马LOC
-CAROUSEL_LOC: Vec2 = Vec2(964, 620)
-# 立即退出loc
+# 旋转木马拿装备点击坐标
+CAROUSEL_LOC: Vec2 = Vec2(964, 610)
+
+# 立即退出按钮坐标
 EXIT_NOW_LOC: Vec2 = Vec2(963, 575)
-# 购买xp loc
+# 购买经验按钮坐标
 BUY_XP_LOC: Vec2 = Vec2(364, 964)
-# 刷新LOC
+# 刷新商店按钮坐标
 REFRESH_LOC: Vec2 = Vec2(364, 1039)
-# 默认的代码行
-DEFAULT_LOC: Vec2 = Vec2(60, 222)
+
+# 鼠标待机坐标
+DEFAULT_LOC: Vec2 = Vec2(96, 222)
+
 # 健康的地方
 HEALTH_LOC: Vec2 = Vec2(1897, 126)
-# 投降LOC
+
+# 投降按钮坐标
 SURRENDER_LOC: Vec2 = Vec2(771, 843)
-# 交出两枚loc
+# 投降按钮坐标2
 SURRENDER_TWO_LOC: Vec2 = Vec2(832, 489)

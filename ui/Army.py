@@ -15,10 +15,11 @@ from qfluentwidgets import FluentIcon, PrimaryPushButton, PushButton, InfoBar, I
 from HeroItem import HeroItem
 from CustomFruitMessageBox import CustomFruitMessageBox
 from CustomRuneMessageBox import CustomRuneMessageBox
-
+from HomeConsole import HomeConsole
 class Army(QFrame):
     def __init__(self, parent=None,rows=4,cols=7):
         super().__init__(parent=parent)
+
         self.setObjectName("阵容")
         self.basePath = Path(__file__).parent.parent / "squads"  # 阵容存储文件夹
 
@@ -123,7 +124,7 @@ class Army(QFrame):
                                             }}
                                        """
                                         hero.setStyleSheet(newStyle)
-
+                        print(index)
                         #提示
                         InfoBar.success(
                             title='TFT-OCR-BOT',
@@ -217,8 +218,11 @@ class Army(QFrame):
                             duration=5000,
                             parent=self
                         )
+                        self.selectItem.blockSignals(True)  # 阻塞信号
                         self.selectItem.clear()
                         self.selectItem.addItems(self.loadSquadsList())
+                        self.selectItem.setCurrentIndex(-1)
+                        self.selectItem.blockSignals(False)  # 阻塞信号
                     except Exception as e:
                         InfoBar.error(
                             title='错误',
@@ -260,10 +264,12 @@ class Army(QFrame):
                     deleteWindow.cancelButton.setText("取消")
                     if deleteWindow.exec():
                         os.remove(existing_path)
+                        self.selectItem.blockSignals(True)  # 阻塞信号
                         self.selectItem.clear()
                         self.selectItem.setText('')
                         self.selectItem.addItems(self.loadSquadsList())
                         self.selectItem.setCurrentIndex(-1)
+                        self.selectItem.blockSignals(False)  # 阻塞信号
                         InfoBar.success(
                             title='TFT-OCR-BOT',
                             content="删除成功",
@@ -351,5 +357,54 @@ class Army(QFrame):
         w = CustomFruitMessageBox(self.parent())
         w.yesButton.setText("保存")
         w.cancelButton.setText("取消")
-        if w.exec():
-            print("确定")
+
+        if len(self.selectItem.currentText().strip()) == 0:
+            InfoBar.warning(
+                title='TFT-OCR-BOT',
+                content="请给当前的阵容设置一个名称!",
+                orient=Qt.Orientation.Horizontal,
+                isClosable=False,
+                position=InfoBarPosition.BOTTOM,
+                duration=5000,
+                parent=self
+            )
+        else:
+            # 判断是否存在目标文件
+            if os.path.exists(self.basePath):
+                if os.path.isfile(
+                        existing_path := os.path.join(self.basePath, self.selectItem.currentText() + ".json")):
+                    # 保存符文信息
+                    if w.exec():
+                        try:
+                            with open(existing_path, "r", encoding="utf-8") as f:
+                                existingData = json.load(f)
+                                # 读取文件 替换数据
+                                existingData["FRUIT"] = w.fruitTransfer.get_selected_data()
+                                existingData["AVOID_FRUIT"] = w.avoidFruitTransfer.get_selected_data()
+
+                            with open(existing_path, "w", encoding="utf-8") as f:
+                                json.dump(existingData, f, ensure_ascii=False, indent=4)
+
+                            InfoBar.success(
+                                title='TFT-OCR-BOT',
+                                content=f"已更新到 {os.path.join(self.basePath, self.selectItem.currentText())}.json",
+                                orient=Qt.Orientation.Horizontal,
+                                isClosable=False,
+                                position=InfoBarPosition.BOTTOM,
+                                duration=5000,
+                                parent=self
+                            )
+
+                        except Exception as e:
+                            print(e)
+
+                else:
+                    InfoBar.warning(
+                        title='TFT-OCR-BOT',
+                        content="请先保存阵容后在编辑水果",
+                        orient=Qt.Orientation.Horizontal,
+                        isClosable=False,
+                        position=InfoBarPosition.BOTTOM,
+                        duration=5000,
+                        parent=self
+                    )

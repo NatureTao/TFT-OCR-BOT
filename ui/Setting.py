@@ -4,22 +4,22 @@
 import os
 from pathlib import Path
 
-from PySide6.QtGui import QFont, QColor, Qt
-from PySide6.QtWidgets import QFrame, QVBoxLayout, QScrollArea, QWidget
-from qfluentwidgets import SettingCard, FluentIcon, TitleLabel, SubtitleLabel, BodyLabel, LineEdit, ComboBoxSettingCard, \
-    QConfig, qconfig, OptionsConfigItem, OptionsValidator, SwitchSettingCard, ConfigItem, BoolValidator, SwitchButton, \
-    IndicatorPosition, ColorDialog, RangeSettingCard, RangeConfigItem, RangeValidator, SingleDirectionScrollArea, \
-    SmoothMode, OptionsSettingCard
+from PySide6.QtGui import QFont, Qt
+from PySide6.QtWidgets import QFrame, QVBoxLayout, QWidget
+from qfluentwidgets import FluentIcon, BodyLabel, ComboBoxSettingCard, \
+    QConfig, qconfig, OptionsConfigItem, OptionsValidator, SwitchSettingCard, ConfigItem, BoolValidator, \
+    RangeSettingCard, RangeConfigItem, RangeValidator, SingleDirectionScrollArea
 
 from ColorSettingCard import ColorSettingCard, ColorValidator
-from MultiSelectSettingCard import MultiSelectSettingCard, ListValidator
+from MultiSelectSettingCard import MultiSelectSettingCard
 
 
 class Config(QConfig):
     # 系统设置
     GAME_HWND_NAME = OptionsConfigItem('系统设置','游戏窗口','League of Legends (TM) Client',OptionsValidator(['League of Legends (TM) Client']))
-    UI_FONT = OptionsConfigItem('系统设置','标记字体','微软雅黑',OptionsValidator(['黑体','等线','楷体','宋体','幼圆','华文彩云','华文楷体','华文行楷','华文琥珀','微软雅黑']))
+    UI_FONT = OptionsConfigItem('系统设置','标记字体','微软雅黑',OptionsValidator(['微软雅黑','等线','幼圆','黑体','楷体','宋体','梦源黑体 CN W16','梦源黑体 SC W16']))
     UI_COLOR =  ConfigItem("系统设置", "标记颜色", [255, 255, 255, 255], ColorValidator())
+
 
     # 引擎设置
     USE_GPG = ConfigItem("引擎设置", "调用显卡", False, BoolValidator())
@@ -43,6 +43,7 @@ class Config(QConfig):
     HEALTH = RangeConfigItem("游戏运营", "生命阈值", 25, RangeValidator(1, 150))
     UPGRADE_LEVEL = ConfigItem("游戏运营", "不买经验等级", [1, 2, 3])
     BUY_EXP_REFRESH_STORE = ConfigItem("游戏运营", "购买经验刷新商店", False, BoolValidator())
+    SELECTED_SQUAD = ConfigItem("游戏运营", "选择阵容", "", "")
 
 cfg = Config()
 qconfig.load(os.path.join(Path(__file__).parent.parent / "config","setting.json"), cfg)
@@ -57,8 +58,8 @@ class Setting(QFrame):
         # 1. 创建主滚动区域
         scroll = SingleDirectionScrollArea(self)
         scroll.setWidgetResizable(True)  # 关键设置！
-        scroll.setFrameShape(QFrame.NoFrame)  # 去除边框
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # 禁用水平滚动
+        scroll.setFrameShape(QFrame.Shape.NoFrame)  # 去除边框
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)  # 禁用水平滚动
 
 
         # 2. 创建内容容器
@@ -98,7 +99,7 @@ class Setting(QFrame):
             icon=FluentIcon.FONT,
             title="标记字体",
             content="游戏对局中标记英雄名称在屏幕上的字体",
-            texts=['黑体','等线','楷体','宋体','幼圆','华文彩云','华文楷体','华文行楷','华文琥珀','微软雅黑'],
+            texts=['微软雅黑','等线','幼圆','黑体','楷体','宋体','梦源黑体CN','梦源黑体SC'],
             parent=self
         )
         box1.addWidget(self.uiFontCard)
