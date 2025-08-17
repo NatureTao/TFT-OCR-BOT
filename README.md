@@ -1,20 +1,20 @@
 ## 说明:
 
-- 确保游戏界面没有任何窗口覆盖。
-- 游戏和客户端必须设置为中文。
-- 游戏需要16:9分辨率无边界窗口，游戏也必须在**主显示器**上
+- 游戏界面没有任何窗口阻挡。
+- 游戏和客户端需要保持中文。
+- 游戏需要16:9分辨率无边界窗口，游戏也必须在——**主显示器**
 - 由于拳头公司的特性，英雄联盟在其他分辨率并不是1080p的缩放版本，所以现在**只支持1920x1080的无边界窗口**
-- 如果程序崩溃或无法工作，请先阅读FAQ。如果问题仍然无法解决，~~网上冲浪解决（~~
+- 如果程序崩溃或无法工作，请先阅读FAQ。如果问题仍然无法解决，询问DeepSeek-R1、DeepSeek-R2、GLM-4.5、GLM-4.5V、GPT-4o、Claude 3.5、Gemini 1.5 Pro、Qwen-VL、DeepSeek-VL、DeepSeek-Coder、GitHub Copilot、Code Llama、Stable Diffusion 3、Suno AI、Character.AI、Perplexity AI、AutoGLM、Microsoft 365 Copilot、华为盘古大模型
 
 ## 安装:
 1. 从 https://www.python.org/downloads/release/python-3114/ 安装Python3.11.4(
 请注意，Python 3.11.4不能在Windows 7及更早版本上使用)
 2. 克隆存储库或从这里下载： https://github.com/NatureTao/TFT-OCR-BOT/archive/refs/heads/main.zip
-3. 运行 `python install.py` 安装依赖。
-4. 在CMD中运行python.exe .\main.py文件
+3. 运行 `python install.py` 安装基本依赖。
 > 视频教程
-- 采用虚拟环境视频教程：https://www.bilibili.com/video/BV1BPBQY1ED5
-- 采用本地环境视频教程：https://www.bilibili.com/video/BV1gXmNYfEyW
+- ~~采用虚拟环境视频教程：https://www.bilibili.com/video/BV1BPBQY1ED5~~
+- ~~采用本地环境视频教程：https://www.bilibili.com/video/BV1gXmNYfEyW~~
+- 以上视频已过时！！！
 
 ## 功能:
 - 读取棋盘状态(回合/等级/金币/商店/物品)
@@ -27,11 +27,8 @@
 - 带有GUI的英雄阵容编辑器
 ## 阵容编辑：
 
-**注意:** 确保你有一个有效的`comps.py`文件(如果有语法错误，请从仓库中复制一个)!
+![阵容编辑示例](/img/阵容编辑.png#pic_left)
 
-单击文件打开，或者在终端中使用`python comp_editor.py`(在正确的文件夹中)执行。
-
-![棋盘位置表](/img/棋盘位置表.png#pic_left )
 ## 待开发:
 - 更好的自动匹配对局和故障监控
 - 从TFT阵容网站上抓取最好的阵容
@@ -52,6 +49,8 @@
 - 以管理员权限打开命令提示符(cmd)。
 
 ## 更新日志:
+> 2025年8月17日
+- 优化部分代码逻辑，处理了可能出现的异常情况
 > 2025年8月10日
 - 适配S15赛季
 - 新的UI界面ui/app.py
