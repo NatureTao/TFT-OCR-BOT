@@ -1,0 +1,119 @@
+{
+    "COMP": {
+        "凯南": {
+            "board_position": 21,
+            "items": [],
+            "level": 2,
+            "final_comp": true,
+            "center": false
+        },
+        "亚索": {
+            "board_position": 22,
+            "items": [],
+            "level": 2,
+            "final_comp": true,
+            "center": false
+        },
+        "阿卡丽": {
+            "board_position": 23,
+            "items": [
+                "夜之锋刃",
+                "正义之手",
+                "强袭者的链枷"
+            ],
+            "level": 3,
+            "final_comp": true,
+            "center": false
+        },
+        "乌迪尔": {
+            "board_position": 24,
+            "items": [
+                "日炎斗篷"
+            ],
+            "level": 2,
+            "final_comp": true,
+            "center": false
+        },
+        "可酷伯": {
+            "board_position": 25,
+            "items": [
+                "石像鬼石板甲",
+                "狂徒铠甲",
+                "薄暮法袍"
+            ],
+            "level": 3,
+            "final_comp": true,
+            "center": false
+        },
+        "德莱厄斯": {
+            "board_position": 17,
+            "items": [
+                "无尽之刃",
+                "正义之手",
+                "斯特拉克的挑战护手"
+            ],
+            "level": 3,
+            "final_comp": true,
+            "center": false
+        },
+        "瑞兹": {
+            "board_position": 0,
+            "items": [
+                "大天使之杖",
+                "强袭者的链枷",
+                "虚空之杖"
+            ],
+            "level": 3,
+            "final_comp": true,
+            "center": false
+        },
+        "婕拉": {
+            "board_position": 2,
+            "items": [],
+            "level": 3,
+            "final_comp": true,
+            "center": false
+        },
+        "卡莎": {
+            "board_position": 6,
+            "items": [
+                "朔极之矛",
+                "无尽之刃",
+                "强袭者的链枷"
+            ],
+            "level": 3,
+            "final_comp": true,
+            "center": true
+        }
+    },
+    "AUGMENTS": [
+        "新竞争者",
+        "教师理事会",
+        "最后一秒营救",
+        "团队建设",
+        "英勇福袋",
+        "英勇福袋++",
+        "英勇福袋+",
+        "寻宝",
+        "潘朵拉的装备",
+        "潘朵拉的装备 II",
+        "潘朵拉的装备 III",
+        "大剑溢流"
+    ],
+    "AVOID_AUGMENTS": [
+        "潘朵拉的备战席",
+        "活体锻炉",
+        "灵能锻炉",
+        "休眠锻炉",
+        "便携锻炉",
+        "光明圣物",
+        "光明重构器",
+        "延迟开始"
+    ],
+    "FRUIT": [
+        "纯粹弹幕地狱",
+        "最大攻击",
+        "战斗力超过9000"
+    ],
+    "AVOID_FRUIT": []
+}
