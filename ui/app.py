@@ -10,10 +10,10 @@
 
 """
 import sys
-
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QFrame, QHBoxLayout
+from qfluentwidgets import setTheme, Theme, isDarkTheme
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import NavigationItemPosition, FluentWindow, SubtitleLabel, setFont
 
@@ -21,6 +21,8 @@ from Army import Army
 from Home import Home
 from Setting import Setting
 
+# 自动跟随系统深色/浅色模式
+setTheme(Theme.AUTO)
 
 class Widget(QFrame):
     """示例"""
@@ -64,7 +66,12 @@ class Window(FluentWindow):
         self.navigationInterface.setMinimumExpandWidth(1180)
         self.addSubInterface(self.homeInterface, FIF.HOME, '首页', NavigationItemPosition.TOP)
 
-        self.addSubInterface(self.troopInterface, QIcon("./icon/army.png"), '阵容')
+        armyIcon = QIcon("./icon/army.png")
+        if isDarkTheme():
+            armyIcon = QIcon("./icon/army_dark.png")
+
+        self.addSubInterface(self.troopInterface, armyIcon, '阵容')
+
 
         self.addSubInterface(self.updateInterface, FIF.UPDATE, '更新')
 

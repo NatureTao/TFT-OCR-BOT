@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QSizePolicy
 from PySide6.QtWidgets import QWidget, QFrame, QGridLayout
 from qfluentwidgets import (ExpandSettingCard, BodyLabel, CheckBox,
-                            ConfigItem, qconfig, ScrollArea)
+                            ConfigItem, qconfig, ScrollArea, isDarkTheme)
 
 from ColorSettingCard import Validator
 
@@ -40,6 +40,34 @@ class MultiSelectSettingCard(ExpandSettingCard):
 
         # 关键修复：确保布局计算正确
         self._adjustViewSize()
+        
+        # 深色模式支持
+        if isDarkTheme():
+            self.setStyleSheet("""
+                MultiSelectSettingCard {
+                    background-color: #2e2e2e !important;
+                    border: 1px solid #3e3e3e;
+                    border-radius: 8px;
+                }
+                MultiSelectSettingCard:hover {
+                    background-color: #3e3e3e !important;
+                }
+                QCheckBox {
+                    color: white !important;
+                    background-color: transparent !important;
+                }
+                QScrollArea {
+                    background-color: #2e2e2e !important;
+                    border: none;
+                }
+                
+                BodyLabel#summaryLabel {
+                background-color: #393939;  /* 与卡片背景一致 */
+                padding: 5px;
+                border-radius: 4px;
+            }
+            
+            """)
 
     def _create_checkboxes(self):
         """创建等级复选框(平铺布局)"""
@@ -51,8 +79,10 @@ class MultiSelectSettingCard(ExpandSettingCard):
 
         container = QWidget()
         container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        # 关键修改：设置背景色（使用 QSS）
-        container.setStyleSheet("background-color: #F9F9F9; border-radius: 5px;")
+        if isDarkTheme():
+            container.setStyleSheet("background-color: #393939;")
+        else:
+            container.setStyleSheet("background-color: #F9F9F9;")
 
         # 使用网格布局实现平铺效果
         self.gridLayout = QGridLayout(container)

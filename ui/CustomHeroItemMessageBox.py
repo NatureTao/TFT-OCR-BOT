@@ -3,7 +3,7 @@ from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel, QButtonGroup, QCompleter
 from qfluentwidgets import LineEdit, RadioButton, SwitchButton, CheckBox, MessageBoxBase
 
-import game_assets
+from game_assets import *
 
 
 class CustomHeroItemMessageBox(MessageBoxBase):
@@ -23,7 +23,7 @@ class CustomHeroItemMessageBox(MessageBoxBase):
         self.heroNameInput.setPlaceholderText("请输入英雄名称")
 
         # 快速补全 英雄名称
-        stands1 = list(game_assets.CHAMPIONS.keys()) # 加载英雄名称
+        stands1 = list(CHAMPIONS.keys()) # 加载英雄名称
         completer1 = QCompleter(stands1, self.heroNameInput)
         completer1.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.heroNameInput.setCompleter(completer1)
@@ -49,7 +49,7 @@ class CustomHeroItemMessageBox(MessageBoxBase):
         box2.addWidget(self.weaponry2)
         box2.addWidget(self.weaponry3)
         # 快速补全 装备名称
-        stands2 = list(game_assets.ITEMS)
+        stands2 = list(ITEMS)
         completer2_1 = QCompleter(stands2, self.weaponry1)
         completer2_2 = QCompleter(stands2, self.weaponry2)
         completer2_3 = QCompleter(stands2, self.weaponry3)

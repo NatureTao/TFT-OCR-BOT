@@ -84,6 +84,8 @@ RUNE = existingData['RUNE']
 # 果实
 FRUIT = existingData['FRUIT']
 
+REAR_ITEMS = existingData['REAR_ITEMS']
+FRONTLINE_ITEMS = existingData['FRONTLINE_ITEMS']
 
 # 所有装备
 ITEMS: set[str] = BASIC_ITEM.union(COMBINED_ITEMS).union(SUPPORT_ITEM).union(NON_CRAFTABLE_ITEMS).union(

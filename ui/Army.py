@@ -9,8 +9,10 @@ from pathlib import Path
 from PySide6.QtCore import Qt, QSize, QDir
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QGridLayout
-from qfluentwidgets import FluentIcon, PrimaryPushButton, PushButton, InfoBar, InfoBarPosition, EditableComboBox, Dialog
+from qfluentwidgets import FluentIcon, PrimaryPushButton, PushButton, InfoBar, InfoBarPosition, EditableComboBox, \
+    Dialog, isDarkTheme
 
+import game_assets
 # 导入组件
 from HeroItem import HeroItem
 from CustomFruitMessageBox import CustomFruitMessageBox
@@ -42,11 +44,18 @@ class Army(QFrame):
         self.saveBtn = PrimaryPushButton(FluentIcon.SAVE,'保存')
         self.saveBtn.clicked.connect(self.saveClicked)
 
-        self.runeBtn = PushButton(QIcon("./icon/强化符文.png"),'编辑符文')
+        runeIcon = QIcon("./icon/强化符文.png")
+        if isDarkTheme():
+            runeIcon = QIcon("./icon/强化符文_dark.png")
+        self.runeBtn = PushButton(runeIcon,'编辑符文')
         self.runeBtn.setIconSize(QSize(20,20))
         self.runeBtn.clicked.connect(self.editRuneList)
 
-        self.fruitBtn = PushButton(QIcon("./icon/fruit.png"),'编辑水果')
+        fruitIcon = QIcon("./icon/fruit.png")
+        if isDarkTheme():
+            fruitIcon = QIcon("./icon/fruit_dark.png")
+        self.fruitBtn = PushButton(fruitIcon,'编辑水果')
+
         self.fruitBtn.setIconSize(QSize(20,20))
         self.fruitBtn.clicked.connect(self.editFruitList)
 
@@ -111,6 +120,9 @@ class Army(QFrame):
                                     hero.final_comp = existingData['COMP'][item]['final_comp']
                                     hero.center = existingData['COMP'][item]['center']
                                     if hero.center:
+                                        color = 'white'
+                                        if isDarkTheme():
+                                            color = '#323232'
                                         newStyle = f"""
                                             {hero._originalStyle}
                                             HeroItem {{
@@ -118,13 +130,13 @@ class Army(QFrame):
                                                 x1:0, y1:0,
                                                 x2:0, y2:1,
                                                 stop:0 #F38138,
-                                                stop:1 white
+                                                stop:1 {color}
                                             );
                                             border-radius: 6px;
                                             }}
                                        """
                                         hero.setStyleSheet(newStyle)
-                        print(index)
+                        # print(index)
                         #提示
                         InfoBar.success(
                             title='TFT-OCR-BOT',
@@ -316,6 +328,15 @@ class Army(QFrame):
             # 判断是否存在目标文件
             if os.path.exists(self.basePath):
                 if os.path.isfile(existing_path := os.path.join(self.basePath, self.selectItem.currentText() + ".json")):
+                    # 加载反读一下
+                    try:
+                        with open(existing_path, "r", encoding="utf-8") as f:
+                            existingData = json.load(f)
+                            w.runeTransfer.load_data(all_items=game_assets.RUNE,selected_items=existingData["AUGMENTS"])
+                            w.avoidRuneTransfer.load_data(all_items=game_assets.RUNE,selected_items=existingData["AVOID_AUGMENTS"])
+                    except Exception as e:
+                        pass
+
                     # 保存符文信息
                     if w.exec():
                         try:
@@ -373,6 +394,13 @@ class Army(QFrame):
             if os.path.exists(self.basePath):
                 if os.path.isfile(
                         existing_path := os.path.join(self.basePath, self.selectItem.currentText() + ".json")):
+                    try:
+                        with open(existing_path, "r", encoding="utf-8") as f:
+                            existingData = json.load(f)
+                            w.fruitTransfer.load_data(all_items=game_assets.RUNE,selected_items=existingData["FRUIT"])
+                            w.avoidFruitTransfer.load_data(all_items=game_assets.RUNE,selected_items=existingData["AVOID_FRUIT"])
+                    except Exception as e:
+                        pass
                     # 保存符文信息
                     if w.exec():
                         try:

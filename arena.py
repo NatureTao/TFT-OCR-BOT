@@ -44,7 +44,7 @@ class Arena:
         self.HP: list = [None]
 
         self.active_portal: str = ""  # 记录回合奇遇
-        self.all_center_expect_fruit = False # 所有C位都获得满意果实
+
 
     def portal_augment(self) -> None:
         """检查区域扩展并相应地设置标志"""
@@ -302,31 +302,31 @@ class Arena:
             scale=3
         )
         if anvil_msg == "选择一件":
-            items: list = self.get_anvil_items()
+            # items: list = self.get_anvil_items()
             arbitrarily = True
             isAnvil = True
             # 遍历预设英雄列表
-            for champ_name in comps.COMP:
-                # 遍历预设英雄装备
-                for c_item in comps.COMP[champ_name]["items"]:
-                    # 铁砧武器库装备
-                    for item in items:
-                        # 普通
-                        if items.__len__() == 4:
-                            if item[1] in game_assets.FULL_ITEMS[c_item] and arbitrarily:
-                                mk_functions.left_click(
-                                    screen_coords.ORDINARY_ANVIL_LOC[items.index(item)].get_coords())
-                                print(f" 选择[{item[1]}]")
-                                arbitrarily = False
-                                break
-                        # 高级
-                        elif items.__len__() == 5:
-                            if item[1] in c_item and arbitrarily:
-                                mk_functions.left_click(
-                                    screen_coords.DIVINE_ANVIL_LOC[items.index(item)].get_coords())
-                                print(f" 选择[{item[1]}]")
-                                arbitrarily = False
-                                break
+            # for champ_name in comps.COMP:
+            #     # 遍历预设英雄装备
+            #     for c_item in comps.COMP[champ_name]["items"]:
+            #         # 铁砧武器库装备
+            #         for item in items:
+            #             # 普通
+            #             if items.__len__() == 4:
+            #                 if item[1] in game_assets.FULL_ITEMS[c_item] and arbitrarily:
+            #                     mk_functions.left_click(
+            #                         screen_coords.ORDINARY_ANVIL_LOC[items.index(item)].get_coords())
+            #                     print(f" 选择[{item[1]}]")
+            #                     arbitrarily = False
+            #                     break
+            #             # 高级
+            #             elif items.__len__() == 5:
+            #                 if item[1] in c_item and arbitrarily:
+            #                     mk_functions.left_click(
+            #                         screen_coords.DIVINE_ANVIL_LOC[items.index(item)].get_coords())
+            #                     print(f" 选择[{item[1]}]")
+            #                     arbitrarily = False
+            #                     break
             if arbitrarily:
                 # 快速处理铁砧
                 print(f" 快速选择")
@@ -375,6 +375,8 @@ class Arena:
         for index, _ in enumerate(self.items):
             if self.items[index] is not None:
                 self.add_item_to_champs(index)
+
+
 
     def add_item_to_champs(self, item_index: int) -> None:
         """遍历棋盘中的英雄并检查英雄是否需要该装备"""
@@ -538,7 +540,7 @@ class Arena:
                         self.items[index] = None
                     return
 
-        elif self.all_center_expect_fruit and not champ.check_eaten_fruit():
+        elif self.check_all_center_expect_fruit() and not champ.check_eaten_fruit():
             print(f"所有c位都获得了水果而且是预期的,剩下的水果给 {champ.name}")
             mk_functions.left_click_drag(screen_coords.ITEM_POS[item_index][0].get_coords(), champ.coords)
             self.pick_fruits(champ)  # 选择水果
@@ -680,19 +682,20 @@ class Arena:
                             refresh = False
                             show_store = True
 
-                    # elif self.champs_to_buy[comps.get_key(comps.COMP, settings.TARGET_HERO_INDEX_SATISFY_GRADE)] == 0:
-                    #     mk_functions.buy_xp()
-                    #     print("  C位成型 -> 购买经验")
-                    #
-                    #     mk_functions.reroll()
-                    #     print("  C位成型 -> 刷新商店")
-                    #     refresh = False
-                    #     show_store = True
+                    elif self.check_center_perfect():
+                        mk_functions.buy_xp()
+                        print("  C位成型 -> 购买经验")
 
-                if refresh and arena_functions.get_level() in settings.UPGRADE_LEVEL or level == 10 or self.spam_roll:
+                        mk_functions.reroll()
+                        print("  C位成型 -> 刷新商店")
+                        refresh = False
+                        show_store = True
+
+                if (refresh and arena_functions.get_level() in settings.UPGRADE_LEVEL) or level == 10 or self.spam_roll:
                     mk_functions.reroll()
                     print("  刷新商店")
                     show_store = True
+
 
             shop: list = arena_functions.get_shop()
 
@@ -745,7 +748,7 @@ class Arena:
 
     def pick_augment(self) -> None:
         """从用户定义的强化优先级列表中选择一个强化，或者默认为不在避免列表中的强化"""
-
+        errorCount = 0
         while True:
             sleep(1)
             augments: list = []
@@ -755,8 +758,9 @@ class Arena:
                 )
                 augments.append(augment)
             print(f"强化符文: {augments}")
-            if len(list(filter(None, augments))) == 3 and '' not in augments:
+            if len(list(filter(None, augments))) == 3 and '' not in augments or errorCount >= 10:
                 break
+            errorCount += 1
 
         for potential in comps.AUGMENTS:
             for augment in augments:
@@ -858,6 +862,17 @@ class Arena:
             if distance <= 30:
                 return index  # 返回位置
         return None  # 如果没有匹配的坐标，返回None
+    def check_center_perfect(self) -> bool:
+        """返回C位是否达到预期等级 2星 3星"""
+        for heroName in comps.COMP:
+            if comps.COMP[heroName]["center"] == True and self.champs_to_buy[heroName] == 0:
+                return True
+        return False
+    def check_all_center_expect_fruit(self) -> bool:
+        """获取所有C位是否吃了水果"""
+        pass
+        print(self.board)
+        return False
 
     def get_label(self) -> None:
         """获取用于在窗口上显示英雄名称UI的标签"""
@@ -875,4 +890,6 @@ class Arena:
             for index, slot in enumerate(self.board_unknown)
         )
         self.message_queue.put(("LABEL", labels))
+
+
 

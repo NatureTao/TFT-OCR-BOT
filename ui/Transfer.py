@@ -1,14 +1,12 @@
 """ 穿梭框实现 """
-
+import json
 import sys
 
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QApplication, QWidget, QListWidget, QListWidgetItem,
-    QPushButton, QVBoxLayout, QHBoxLayout, QLabel,
-    QLineEdit
+    QPushButton, QVBoxLayout, QHBoxLayout, QLabel
 )
-from PySide6.QtCore import Qt
 from qfluentwidgets import LineEdit
 
 
@@ -119,12 +117,36 @@ class Transfer(QWidget):
             }
         """)
 
-    def load_data(self, items=None):
-        """加载测试数据"""
-        if items is None:
-            items = []
-        for item in items:
-            self.left_list.addItem(QListWidgetItem(item))
+    # def load_data(self, items=None):
+    #     """加载测试数据"""
+    #     if items is None:
+    #         items = []
+    #     for item in items:
+    #         self.left_list.addItem(QListWidgetItem(item))
+
+    def load_data(self, all_items=None, selected_items=None):
+        """加载数据
+        :param all_items: 所有可选项列表
+        :param selected_items: 已选项列表
+        """
+        # 清空现有列表
+        self.left_list.clear()
+        self.right_list.clear()
+
+        if all_items is None:
+            all_items = []
+        if selected_items is None:
+            selected_items = []
+
+        # 加载已选数据到右侧
+        for item in selected_items:
+            self.right_list.addItem(QListWidgetItem(item))
+
+        # 加载剩余数据到左侧
+        for item in all_items:
+            if item not in selected_items:
+                self.left_list.addItem(QListWidgetItem(item))
+
 
     def _filter_left(self):
         """过滤左侧列表"""

@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt, QSize, QEvent
 from PySide6.QtGui import QCursor
-from PySide6.QtWidgets import QVBoxLayout, QLabel
-from qfluentwidgets import CardWidget, FluentIcon, InfoBar, InfoBarPosition, Icon
+from PySide6.QtWidgets import QVBoxLayout, QLabel, QApplication
+from qfluentwidgets import CardWidget, FluentIcon, InfoBar, InfoBarPosition, Icon, isDarkTheme, BodyLabel
 
 from CustomHeroItemMessageBox import CustomHeroItemMessageBox
 
@@ -23,8 +23,9 @@ class HeroItem(CardWidget):
         self.vBoxLayout.setAlignment(Qt.AlignmentFlag.AlignCenter) # 设置对齐方式
 
         # 使用 QLabel 显示图标
-        self.iconLabel = QLabel()
+        self.iconLabel = BodyLabel()
         self.iconLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
 
         # 获取 FluentIcon.ADD 的 QPixmap 并设置大小
         icon = Icon(FluentIcon.ADD)
@@ -83,6 +84,9 @@ class HeroItem(CardWidget):
             else:
                 self.iconLabel.setText(self.heroName)
             if self.center:
+                color = 'white'
+                if isDarkTheme():
+                    color = '#323232'
                 newStyle = f"""
                     {self._originalStyle}
                     HeroItem {{
@@ -90,7 +94,7 @@ class HeroItem(CardWidget):
                         x1:0, y1:0,
                         x2:0, y2:1,
                         stop:0 #F38138,
-                        stop:1 white
+                        stop:1 {color}
                     );
                     border-radius: 6px;
                     }}

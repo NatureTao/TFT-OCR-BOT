@@ -8,7 +8,8 @@ from PySide6.QtGui import QFont, Qt
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QWidget
 from qfluentwidgets import FluentIcon, BodyLabel, ComboBoxSettingCard, \
     QConfig, qconfig, OptionsConfigItem, OptionsValidator, SwitchSettingCard, ConfigItem, BoolValidator, \
-    RangeSettingCard, RangeConfigItem, RangeValidator, SingleDirectionScrollArea
+    RangeSettingCard, RangeConfigItem, RangeValidator, SingleDirectionScrollArea, setTheme, Theme, isDarkTheme, \
+    themeColor
 
 from ColorSettingCard import ColorSettingCard, ColorValidator
 from MultiSelectSettingCard import MultiSelectSettingCard
@@ -54,6 +55,74 @@ class Setting(QFrame):
     def __init__(self,parent=None):
         super().__init__(parent=parent)
         self.setObjectName("设置")
+        self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
+
+        font = QFont()
+        font.setFamilies(["楷体","微软雅黑"])
+        font.setPointSize(14)
+        if isDarkTheme():
+            self.setStyleSheet("""
+                /* 主背景 */
+                QFrame#设置 {
+                    background-color: #202020 !important;
+                }
+                
+                /* 内容容器 */
+                QWidget {
+                    background-color: #202020 !important;
+                }
+    
+                /* 滚动区域 */
+                QScrollArea {
+                    background-color: #202020 !important;
+                    border: none;
+                }
+                
+                /* 滚动区域视口 */
+                QScrollArea > QWidget > QWidget {
+                    background-color: #202020 !important;
+                }
+    
+                /* 所有设置卡 */
+                SettingCard, ComboBoxSettingCard, SwitchSettingCard, RangeSettingCard, ColorSettingCard, MultiSelectSettingCard {
+                    background-color: #2e2e2e !important;
+                    border-radius: 8px;
+                    border: 1px solid #3e3e3e;
+                }
+                
+                /* 设置卡悬停效果 */
+                SettingCard:hover, ComboBoxSettingCard:hover, SwitchSettingCard:hover, RangeSettingCard:hover, ColorSettingCard:hover, MultiSelectSettingCard:hover {
+                    background-color: #3e3e3e !important;
+                }
+                
+                /* 文本颜色保护 */
+                QLabel, BodyLabel {
+                    color: white !important;
+                    background-color: transparent !important;
+                }
+                
+                /* 组合框样式 */
+                QComboBox {
+                    background-color: #3e3e3e !important;
+                    color: white !important;
+                    border: 1px solid #5e5e5e;
+                    border-radius: 4px;
+                }
+                
+                /* 滑块样式 */
+                QSlider {
+                    background-color: transparent !important;
+                }
+                
+                /* 开关按钮样式 */
+                QPushButton {
+                    background-color: #3e3e3e !important;
+                    color: white !important;
+                    border: 1px solid #5e5e5e;
+                    border-radius: 4px;
+                }
+            """)
+
 
         # 1. 创建主滚动区域
         scroll = SingleDirectionScrollArea(self)
@@ -69,9 +138,6 @@ class Setting(QFrame):
         self.mainLayout.setContentsMargins(15, 10, 15, 15)  # 左,上,右,下
 
 
-        font = QFont()
-        font.setFamilies(["楷体","微软雅黑"])
-        font.setPointSize(14)
 
         box1 = QVBoxLayout()
         box1.setContentsMargins(0, 0, 0, 0)

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QColorDialog, QLabel, QPushButton
-from qfluentwidgets import SettingCard, PushButton, ConfigItem, qconfig
+from qfluentwidgets import SettingCard, PushButton, ConfigItem, qconfig, isDarkTheme
 
 
 class ColorSettingCard(SettingCard):
@@ -26,6 +26,19 @@ class ColorSettingCard(SettingCard):
         # 连接信号
         self.colorButton.clicked.connect(self.showColorDialog)
         self.configItem.valueChanged.connect(self.updateButtonColor)
+        
+        # 深色模式支持
+        if isDarkTheme():
+            self.setStyleSheet("""
+                ColorSettingCard {
+                    background-color: #2e2e2e !important;
+                    border: 1px solid #3e3e3e;
+                    border-radius: 8px;
+                }
+                ColorSettingCard:hover {
+                    background-color: #3e3e3e !important;
+                }
+            """)
 
     def showColorDialog(self):
         """ 显示颜色选择对话框 """

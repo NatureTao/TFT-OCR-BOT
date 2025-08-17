@@ -42,6 +42,9 @@ class Champion:
 
     def check_trait(self, item: str) -> bool:
         """判断装备栏纹章 是否和当前英雄相同羁绊"""
+        if not item or not isinstance(item, str):  # 过滤None/空字符串/非字符串
+            return False
+
         trait_to_check = item.replace("纹章", "")
         return trait_to_check not in self.traits and "纹章" in item
 
@@ -58,6 +61,6 @@ class Champion:
         return self.expect_fruit
 
 if __name__ == '__main__':
-    cm = Champion("阿木木", None, None, None, None, None, "监察", None, None)
+    cm = Champion("阿木木", None, None, None, None, None, "监察", None, None,center=True)
     print(cm.check_trait("锁子甲"))
     print(cm.check_trait("监察纹章"))
